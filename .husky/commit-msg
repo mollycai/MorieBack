@@ -1,0 +1,50 @@
+#!/bin/sh
+
+red_echo ()      { echo -e "\033[031;1m$@\033[0m"; }
+green_echo ()    { echo -e "\033[032;1m$@\033[0m"; }
+yellow_echo ()   { echo -e "\033[033;1m$@\033[0m"; }
+blue_echo ()     { echo -e "\033[034;1m$@\033[0m"; }
+purple_echo ()   { echo -e "\033[035;1m$@\033[0m"; }
+
+MSG=`cat $1`
+TYPE=`echo $MSG | awk -F: '{print $1}'`
+NUM=`echo $MSG | awk '{print $2}'`
+
+if [[ $TYPE =~ (docs|feat|fix|perf|refactor|style|test|format|merge|depend|chore|del) ]] ; then
+    green_echo "commit check success"
+    exit 0
+elif [[ $TYPE =~ (docs|feat|fix|perf|refactor|style|test|format|merge|depend|chore|del) ]] ; then
+    green_echo "commit check success"
+    exit 0
+elif [[ $TYPE =~ (docs|feat|fix|perf|refactor|style|test|format|merge|depend|chore|del) ]] ; then
+    green_echo "commit check success"
+    exit 0
+elif [[ $TYPE =~ (docs|feat|fix|perf|refactor|style|test|format|merge|depend|chore|del) ]] ; then
+    green_echo "commit check success"
+    exit 0
+elif [[ $TYPE =~ (docs|feat|fix|perf|refactor|style|test|format|merge|depend|chore|del) ]] ; then
+    green_echo "commit check success"
+    exit 0
+elif [[ $TYPE =~ (docs|feat|fix|perf|refactor|style|test|format|merge|depend|chore|del) ]] ; then
+    green_echo "commit check success"
+    exit 0
+elif [[ $MSG =~ Merge{1}.*branch{1}.*into{1}.* ]] ; then
+    green_echo "commit check success"
+    exit 0
+else
+    red_echo "[error] irregular commit message"
+    red_echo "[e.g.] fix: p1_12345 流水线功能修复"
+    yellow_echo "docs: 仅文档变更"
+    yellow_echo "feat: 新特性"
+    yellow_echo "fix: 修复缺陷"
+    yellow_echo "perf: 性能优化"
+    yellow_echo "refactor: 代码重构，同时不能是缺陷修复或新特性"
+    yellow_echo "style: 代码样式调整，不涉及业务变更"
+    yellow_echo "test: 添加测试用例或修改测试用例"
+    yellow_echo "format: 不修改业务逻辑下，仅做代码规范的格式化"
+    yellow_echo "merge: 仅做分支合并同步"
+    yellow_echo "depend: 对工程的依赖进行增删改"
+    yellow_echo "chore: 构建脚本、任务等相关代码"
+    yellow_echo "del: 删除可能仍然有人用到的功能、API等破坏性动作"
+    exit 1
+fi
