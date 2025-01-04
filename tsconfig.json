@@ -17,5 +17,9 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false
-  }
+  },
+  "include": [
+    "src", // 确保包含整个 src 目录
+    "src/typings" // 包含定义全局类型的文件夹
+  ]
 }

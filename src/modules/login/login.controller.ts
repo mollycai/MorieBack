@@ -1,19 +1,23 @@
 import {
-  Controller,
-  Post,
-  Body,
-  Query,
-  Get,
-  Req,
-  Headers,
+	Body,
+	Controller,
+	Get,
+	Headers,
+	Post,
+	Query,
+	Req,
 } from '@nestjs/common';
-import { LoginService } from './login.service';
-import { ImageCaptchaDto, LoginInfoDto } from './login.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ImageCaptcha, LoginToken } from './login.entity';
 import { FastifyRequest } from 'fastify';
-import { UtilService } from 'src/shared/services/utils.service';
 import { Authorize } from 'src/common/decorators/authorize.decorator';
+import { UtilService } from 'src/shared/services/utils.service';
+import {
+	ImageCaptchaDto,
+	LoginInfoDto,
+	LoginInfoDtoWithCaptcha,
+} from './login.dto';
+import { ImageCaptcha, LoginToken } from './login.entity';
+import { LoginService } from './login.service';
 
 @ApiTags('登录模块')
 @Controller()
@@ -27,18 +31,18 @@ export class LoginController {
     summary: '获取登录图片验证码',
   })
   @Get('captchaIamge')
-	@Authorize()
+  @Authorize()
   async getCaptchaImage(@Query() dto: ImageCaptchaDto): Promise<ImageCaptcha> {
     return await this.loginService.createImageCaptcha(dto);
   }
 
   @ApiOperation({
-    summary: '管理员登录',
+    summary: '登录(带验证码)',
   })
-  @Post('login')
-	@Authorize()
-  async login(
-    @Body() dto: LoginInfoDto,
+  @Post('loginWithCaptcha')
+  @Authorize()
+  async loginWithCaptcha(
+    @Body() dto: LoginInfoDtoWithCaptcha,
     @Req() req: FastifyRequest,
     @Headers('user-agent') ua: string,
   ): Promise<LoginToken> {
@@ -52,5 +56,39 @@ export class LoginController {
       ua,
     );
     return { token };
+  }
+
+  @ApiOperation({
+    summary: '登录(不带验证码)',
+  })
+  @Post('login')
+  @Authorize()
+  async login(
+    @Body() dto: LoginInfoDto,
+    @Req() req: FastifyRequest,
+    @Headers('user-agent') ua: string,
+  ): Promise<any> {
+    // 登录获取token
+    const token = await this.loginService.getLoginSign(
+      dto.username,
+      dto.password,
+      this.utilService.getIpAddr(req),
+      ua,
+    );
+    // @TODO 返回的信息先写死
+    return {
+      success: true,
+      data: {
+        avatar: 'https://avatars.githubusercontent.com/u/99068236?v=4',
+        username: 'superadmin',
+        nickname: 'morie',
+        roles: ['superadmin'],
+        permissions: ['*:*:*'],
+				token: token,
+        accessToken: 'eyJhbGciOiJIUzUxMiJ9.superadmin',
+        refreshToken: 'eyJhbGciOiJIUzUxMiJ9.superadminRefresh',
+        expires: '2030/10/30 00:00:00',
+      },
+    }
   }
 }

@@ -12,7 +12,7 @@ export class LogService {
     await prisma.sys_logininfor.create({
       data: {
         ipaddr: ip,
-        userName: uid.toString(),
+        user_name: uid.toString(),
       },
     });
   }

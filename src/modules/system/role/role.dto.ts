@@ -1,42 +1,49 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsArray, IsOptional, IsString, Matches, MinLength } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import { IsEnum, IsOptional, IsString, Length } from 'class-validator';
+import { PaginatingDTO } from 'src/common/dto/params.dto';
+import { StatusEnum } from 'src/common/enum';
 
-export class CreateRoleDto {
+export class ListRoleDto extends PaginatingDTO {
   @ApiProperty({
+    type: String,
+    description: '角色id',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  @Length(0, 100)
+  roleId?: string;
+
+  @ApiProperty({
+    type: String,
     description: '角色名称',
-  })
-  @IsString()
-  @MinLength(2)
-  name: string;
-
-  @ApiProperty({
-    description: '角色唯一标识',
-  })
-  @IsString()
-  @Matches(/^[a-z0-9A-Z]+$/)
-  label: string;
-
-  @ApiProperty({
-    description: '角色备注',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  remark: string;
-
-  @ApiProperty({
-    description: '关联菜单、权限编号',
+    default: '超级管理员',
     required: false,
   })
   @IsOptional()
-  @IsArray()
-  menus: number[];
+  @IsString()
+  @Length(0, 30)
+  roleName?: string;
 
   @ApiProperty({
-    description: '关联部门编号',
+    type: String,
+    description: '角色字符',
+    default: 'superadmin',
     required: false,
   })
   @IsOptional()
-  @IsArray()
-  depts: number[];
+  @IsString()
+  @Length(0, 30)
+  roleKey?: string;
+
+  @ApiProperty({
+    type: String,
+    description: '状态',
+    default: '0',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  @IsEnum(StatusEnum)
+  status?: string;
 }

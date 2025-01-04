@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { prisma } from 'src/prisma';
 import { sys_user } from '@prisma/client';
-import { UserInfo } from './user.entity';
 import { isEmpty } from 'lodash';
 import { ApiException } from 'src/common/exceptions/api.exception';
+import { prisma } from 'src/prisma';
 
 @Injectable()
 export class UserService {
@@ -15,7 +14,7 @@ export class UserService {
   async getUserByUsername(username: string): Promise<sys_user | undefined> {
     return await prisma.sys_user.findFirst({
       where: {
-        userName: username,
+        user_name: username,
         status: '0',
       },
     });
@@ -27,23 +26,23 @@ export class UserService {
 	 * @param ip 
 	 * @returns 
 	 */
-  async getUserInfo(uuid: number, ip?: string): Promise<UserInfo> {
+  async getUserInfo(uuid: number, ip?: string): Promise<Partial<sys_user>>  {
     const user: sys_user = await prisma.sys_user.findUnique({
       where: {
-        userId: uuid,
+        user_id: uuid,
       },
     });
     if (isEmpty(user)) {
       throw new ApiException(1004);
     }
     return {
-      name: user.userName,
-      nickName: user.nickName,
+      user_name: user.user_name,
+      nick_name: user.nick_name,
       email: user.email,
-      phone: user.phonenumber,
+      phonenumber: user.phonenumber,
       remark: user.remark,
-      headImg: user.avatar,
-      loginIP: ip,
+      avatar: user.avatar,
+      login_ip: ip,
     };
   }
 }

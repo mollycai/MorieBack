@@ -1,22 +1,21 @@
-import { Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { UserService } from '../system/user/user.service';
-import { UtilService } from 'src/shared/services/utils.service';
-import { LogService } from '../system/log/log.service';
-import { ApiException } from '../../common/exceptions/api.exception';
-import { isEmpty } from 'lodash';
 import { InjectRedis } from '@nestjs-modules/ioredis';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { Redis } from 'ioredis';
+import { isEmpty } from 'lodash';
+import { UtilService } from 'src/shared/services/utils.service';
+import * as svgCaptcha from 'svg-captcha';
 import {
-  CAPTCHA_IMG_KEY,
-  USER_PERMS_KEY,
-  USER_TOKEN_KEY,
-  USER_VERSION_KEY,
+	CAPTCHA_IMG_KEY,
+	USER_PERMS_KEY,
+	USER_TOKEN_KEY
 } from '../../common/constants/redis.constans';
+import { ApiException } from '../../common/exceptions/api.exception';
+import { LogService } from '../system/log/log.service';
+import { UserService } from '../system/user/user.service';
 import { ImageCaptchaDto } from './login.dto';
 import { ImageCaptcha } from './login.entity';
-import * as svgCaptcha from 'svg-captcha';
 
 @Injectable()
 export class LoginService {
@@ -105,7 +104,7 @@ export class LoginService {
 		const perms = []
     // 生成令牌
     const jwtSign = this.jwtService.sign({
-      uid: parseInt(user.userId.toString()),
+      uid: parseInt(user.user_id.toString()),
       pv: 1,
     });
     // redis 设置token缓存时间和缓存菜单
@@ -113,14 +112,14 @@ export class LoginService {
     await this.redisService
       .pipeline()
 			// @Todo 关于修改密码和设置密码版本的操作
-      // .set(`${USER_VERSION_KEY}:${user.userId}`, 1)
-      .set(`${USER_TOKEN_KEY}:${user.userId}`, jwtSign, 'EX', expiresIn)
-			.set(`${USER_PERMS_KEY}:${user.userId}`, JSON.stringify(perms))
+      // .set(`${USER_VERSION_KEY}:${user.user_id}`, 1)
+      .set(`${USER_TOKEN_KEY}:${user.user_id}`, jwtSign, 'EX', expiresIn)
+			.set(`${USER_PERMS_KEY}:${user.user_id}`, JSON.stringify(perms))
       .exec();
     // @Todo redis 缓存菜单
 
     // @Todo 保存登录日志
-		await this.logService.saveLoginLog(Number(user.userId), ipAddr)
+		await this.logService.saveLoginLog(Number(user.user_id), ipAddr)
     return jwtSign;
   }
 

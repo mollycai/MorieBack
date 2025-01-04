@@ -5,6 +5,6 @@ import { RoleModule } from './role/role.module';
 import { UserModule } from './user/user.module';
 
 @Module({
-  imports: [LogModule, MenuModule, UserModule],
+  imports: [LogModule, MenuModule, UserModule, RoleModule],
 })
 export class SystemModule {}

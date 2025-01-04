@@ -7,43 +7,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model sys_user {
-  userId      BigInt    @id @default(autoincrement()) @map("user_id")
-  dept_id     BigInt?
-  userName    String    @map("user_name") @db.VarChar(30)
-  nickName    String    @map("nick_name") @db.VarChar(30)
-  userType    String?   @default("00") @map("user_type") @db.VarChar(2)
-  email       String?   @default("") @db.VarChar(50)
-  phonenumber String?   @default("") @db.VarChar(11)
-  sex         String?   @default("0") @db.Char(1)
-  avatar      String?   @default("") @db.VarChar(100)
-  password    String?   @default("") @db.VarChar(100)
-  status      String?   @default("0") @db.Char(1)
-  delFlag     String?   @default("0") @map("del_flag") @db.Char(1)
-  loginIp     String?   @default("") @map("login_ip") @db.VarChar(128)
-  loginDate   DateTime? @map("login_date") @db.DateTime(0)
-  createBy    String?   @default("") @map("create_by") @db.VarChar(64)
-  createTime  DateTime? @map("create_time") @db.DateTime(0)
-  updateBy    String?   @default("") @map("update_by") @db.VarChar(64)
-  updateTime  DateTime? @map("update_time") @db.DateTime(0)
-  remark      String?   @db.VarChar(500)
-}
-
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model sys_logininfor {
-  infoId     BigInt    @id @default(autoincrement()) @map("info_id")
-  userName   String?   @default("") @map("user_name") @db.VarChar(50)
-  ipaddr     String?   @default("") @db.VarChar(128)
-  status     String?   @default("0") @db.Char(1)
-  msg        String?   @default("") @db.VarChar(255)
-  accessTime DateTime? @map("access_time") @db.DateTime(0)
+  info_id     Int       @id @default(autoincrement())
+  user_name   String?   @default("") @db.VarChar(50)
+  ipaddr      String?   @default("") @db.VarChar(128)
+  status      String?   @default("0") @db.Char(1)
+  msg         String?   @default("") @db.VarChar(255)
+  access_time DateTime? @db.DateTime(0)
 
-  @@index([accessTime], map: "idx_sys_logininfor_lt")
+  @@index([access_time], map: "idx_sys_logininfor_lt")
   @@index([status], map: "idx_sys_logininfor_s")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model sys_role {
-  role_id             BigInt    @id @default(autoincrement())
+  role_id             Int       @id @default(autoincrement())
   role_name           String    @db.VarChar(30)
   role_key            String    @db.VarChar(100)
   role_sort           Int
@@ -60,10 +39,99 @@ model sys_role {
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model sys_role_menu {
+  role_id BigInt
+  menu_id BigInt
+
+  @@id([role_id, menu_id])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model sys_user {
+  user_id     Int       @id @default(autoincrement())
+  dept_id     Int?
+  user_name   String    @db.VarChar(30)
+  nick_name   String    @db.VarChar(30)
+  user_type   String?   @default("00") @db.VarChar(2)
+  email       String?   @default("") @db.VarChar(50)
+  phonenumber String?   @default("") @db.VarChar(11)
+  sex         String?   @default("0") @db.Char(1)
+  avatar      String?   @default("") @db.VarChar(100)
+  password    String?   @default("") @db.VarChar(100)
+  status      String?   @default("0") @db.Char(1)
+  del_flag    String?   @default("0") @db.Char(1)
+  login_ip    String?   @default("") @db.VarChar(128)
+  login_date  DateTime? @db.DateTime(0)
+  create_by   String?   @default("") @db.VarChar(64)
+  create_time DateTime? @db.DateTime(0)
+  update_by   String?   @default("") @db.VarChar(64)
+  update_time DateTime? @db.DateTime(0)
+  remark      String?   @db.VarChar(500)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model sys_dept {
+  dept_id     Int       @id @default(autoincrement())
+  parent_id   Int?      @default(0)
+  ancestors   String?   @default("") @db.VarChar(50)
+  dept_name   String?   @default("") @db.VarChar(30)
+  order_num   Int?      @default(0)
+  leader      String?   @db.VarChar(20)
+  phone       String?   @db.VarChar(11)
+  email       String?   @db.VarChar(50)
+  status      String?   @default("0") @db.Char(1)
+  del_flag    String?   @default("0") @db.Char(1)
+  create_by   String?   @default("") @db.VarChar(64)
+  create_time DateTime? @db.DateTime(0)
+  update_by   String?   @default("") @db.VarChar(64)
+  update_time DateTime? @db.DateTime(0)
+  remark      String?   @db.VarChar(500)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model sys_post {
+  post_id     Int       @id @default(autoincrement())
+  post_code   String    @db.VarChar(64)
+  post_name   String    @db.VarChar(50)
+  post_sort   Int
+  status      String    @db.Char(1)
+  create_by   String?   @default("") @db.VarChar(64)
+  create_time DateTime? @db.DateTime(0)
+  update_by   String?   @default("") @db.VarChar(64)
+  update_time DateTime? @db.DateTime(0)
+  remark      String?   @db.VarChar(500)
+  del_flag    String?   @default("0") @db.Char(1)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model sys_role_dept {
+  role_id Int
+  dept_id Int
+
+  @@id([role_id, dept_id])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model sys_user_post {
+  user_id Int
+  post_id Int
+
+  @@id([user_id, post_id])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model sys_user_role {
+  user_id Int
+  role_id Int
+
+  @@id([user_id, role_id])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model sys_menu {
-  menu_id     BigInt    @id @default(autoincrement())
+  menu_id     Int       @id @default(autoincrement())
   menu_name   String    @db.VarChar(50)
-  parent_id   BigInt?   @default(0)
+  parent_id   Int?      @default(0)
   order_num   Int?      @default(0)
   path        String?   @default("") @db.VarChar(200)
   component   String?   @db.VarChar(255)
@@ -80,46 +148,5 @@ model sys_menu {
   update_by   String?   @default("") @db.VarChar(64)
   update_time DateTime? @db.DateTime(0)
   remark      String?   @default("") @db.VarChar(500)
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model sys_role_menu {
-  role_id BigInt
-  menu_id BigInt
-
-  @@id([role_id, menu_id])
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model sys_user_role {
-  user_id BigInt
-  role_id BigInt
-
-  @@id([user_id, role_id])
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model sys_dept {
-  dept_id     BigInt    @id @default(autoincrement())
-  parent_id   BigInt?   @default(0)
-  ancestors   String?   @default("") @db.VarChar(50)
-  dept_name   String?   @default("") @db.VarChar(30)
-  order_num   Int?      @default(0)
-  leader      String?   @db.VarChar(20)
-  phone       String?   @db.VarChar(11)
-  email       String?   @db.VarChar(50)
-  status      String?   @default("0") @db.Char(1)
   del_flag    String?   @default("0") @db.Char(1)
-  create_by   String?   @default("") @db.VarChar(64)
-  create_time DateTime? @db.DateTime(0)
-  update_by   String?   @default("") @db.VarChar(64)
-  update_time DateTime? @db.DateTime(0)
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model sys_role_dept {
-  role_id BigInt
-  dept_id BigInt
-
-  @@id([role_id, dept_id])
 }

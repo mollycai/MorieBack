@@ -1,5 +1,5 @@
 import { HttpException } from '@nestjs/common';
-import { ErrorCodeMap, ErrorCodeMapType } from '../constants/error-code.constants';
+import { ErrorCodeMap, ErrorCodeMapType } from '../constants/code.constants';
 
 export class ApiException extends HttpException {
 	/**
