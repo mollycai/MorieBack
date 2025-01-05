@@ -46,7 +46,6 @@ export class RoleService {
         lte: new Date(Number(endTime)),
       };
     }
-    console.log(pageSize, pageNum);
     // 分页处理
     const take = Number(pageSize);
     const skip = (Number(pageNum) - 1) * take;

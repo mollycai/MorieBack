@@ -12,11 +12,12 @@ import { FastifyRequest } from 'fastify';
 import { Authorize } from 'src/common/decorators/authorize.decorator';
 import { UtilService } from 'src/shared/services/utils.service';
 import {
+	ImageCaptcha,
 	ImageCaptchaDto,
 	LoginInfoDto,
 	LoginInfoDtoWithCaptcha,
+	LoginToken,
 } from './login.dto';
-import { ImageCaptcha, LoginToken } from './login.entity';
 import { LoginService } from './login.service';
 
 @ApiTags('登录模块')
