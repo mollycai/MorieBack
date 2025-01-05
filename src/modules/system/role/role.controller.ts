@@ -1,5 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Permission } from 'src/common/decorators/permissions.decorator';
 import { ListRoleDto } from './role.dto';
 import { RoleService } from './role.service';
 
@@ -14,7 +15,7 @@ export class RoleController {
   @Get()
   @ApiOkResponse({ type: ListRoleDto })
   @ApiOperation({ summary: '获取角色管理列表' })
-  // @RequiresPermissions('system:role:list')
+  @Permission('system:role:list')
   findAll(@Query() params: ListRoleDto) {
     return this.roleService.findAll(params);
   }

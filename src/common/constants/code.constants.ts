@@ -9,6 +9,8 @@ export const ErrorCodeMap = {
   1004: '不存在此用户',
   1101: '登录无效或无权限访问',
   1102: '登录身份已过期',
+  1103: '权限不足',
+	1104: 'token令牌无效'
 } as const;
 
 export type ErrorCodeMapType = keyof typeof ErrorCodeMap;

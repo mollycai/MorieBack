@@ -14,8 +14,7 @@ import {
 import { ApiException } from '../../common/exceptions/api.exception';
 import { LogService } from '../system/log/log.service';
 import { UserService } from '../system/user/user.service';
-import { ImageCaptchaDto } from './login.dto';
-import { ImageCaptcha } from './login.entity';
+import { ImageCaptcha, ImageCaptchaDto } from './login.dto';
 
 @Injectable()
 export class LoginService {
@@ -49,12 +48,12 @@ export class LoginService {
       )}`,
       id: await this.util.generateUUID(),
     };
-    // 设置过期时间为5分钟
+    // 设置过期时间为12小时
     await this.redisService.set(
       `${CAPTCHA_IMG_KEY}:${result.id}`,
       svg.text,
       'EX',
-      60 * 5,
+      60 * 60 * 12,
     );
     return result;
   }
@@ -101,7 +100,7 @@ export class LoginService {
       throw new ApiException(1003);
     }
     // @Todo 获取权限菜单
-		const perms = []
+		const perms = ['*:*:*']
     // 生成令牌
     const jwtSign = this.jwtService.sign({
       uid: parseInt(user.user_id.toString()),
@@ -121,23 +120,5 @@ export class LoginService {
     // @Todo 保存登录日志
 		await this.logService.saveLoginLog(Number(user.user_id), ipAddr)
     return jwtSign;
-  }
-
-	/**
-	 * 根据id获取token
-	 * @param id 
-	 * @returns 
-	 */
-	async getRedisTokenById(id: number): Promise<string> {
-    return this.redisService.get(`${USER_TOKEN_KEY}:${id}`);
-  }
-
-	/**
-	 * 根据id获取权限
-	 * @param id 
-	 * @returns 
-	 */
-	async getRedisPermsById(id: number): Promise<string> {
-    return this.redisService.get(`${USER_PERMS_KEY}:${id}`);
   }
 }

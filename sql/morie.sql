@@ -128,57 +128,57 @@ create table sys_menu (
 -- 插入一级菜单
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, menu_type, is_frame, visible, status, icon, remark)
 VALUES 
-(1, '系统管理', 0, 1, '/system', null, 'M', '1', '0', '0', 'system', '一级菜单：系统管理', 0),
-(2, '系统监控', 0, 2, '/monitor', null, 'M', '1', '0', '0', 'monitor', '一级菜单：系统监控', 0),
-(3, '系统工具', 0, 3, '/tools', null, 'M', '1', '0', '0', 'tools', '一级菜单：系统工具', 0);
+(1, '系统管理', 0, 1, '/system', null, 'M', '1', '0', '0', 'system', '一级菜单：系统管理'),
+(2, '系统监控', 0, 2, '/monitor', null, 'M', '1', '0', '0', 'monitor', '一级菜单：系统监控'),
+(3, '系统工具', 0, 3, '/tools', null, 'M', '1', '0', '0', 'tools', '一级菜单：系统工具');
 
 -- 插入二级菜单（系统管理）
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, menu_type, is_frame, visible, status, icon, remark)
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, menu_type, is_frame, visible, status, perms, remark)
 VALUES 
-(101, '用户管理', 1, 1, '/system/user', 'system/user/index', 'C', '1', '0', '0', 'user', '二级菜单：用户管理', 0),
-(102, '角色管理', 1, 2, '/system/role', 'system/role/index', 'C', '1', '0', '0', 'role', '二级菜单：角色管理', 0),
-(103, '菜单管理', 1, 3, '/system/menu', 'system/menu/index', 'C', '1', '0', '0', 'menu', '二级菜单：菜单管理', 0),
-(104, '部门管理', 1, 4, '/system/dept', 'system/dept/index', 'C', '1', '0', '0', 'dept', '二级菜单：部门管理', 0),
-(105, '岗位管理', 1, 5, '/system/post', 'system/post/index', 'C', '1', '0', '0', 'post', '二级菜单：岗位管理', 0),
-(106, '日志管理', 1, 6, '/system/log', 'system/log/index', 'C', '1', '0', '0', 'log', '二级菜单：日志管理', 0);
+(101, '用户管理', 1, 1, '/system/user', 'system/user/index', 'C', '1', '0', '0', 'system:user:list', '二级菜单：用户管理'),
+(102, '角色管理', 1, 2, '/system/role', 'system/role/index', 'C', '1', '0', '0', 'system:role:list', '二级菜单：角色管理'),
+(103, '菜单管理', 1, 3, '/system/menu', 'system/menu/index', 'C', '1', '0', '0', 'system:menu:list', '二级菜单：菜单管理'),
+(104, '部门管理', 1, 4, '/system/dept', 'system/dept/index', 'C', '1', '0', '0', 'system:dept:list', '二级菜单：部门管理'),
+(105, '岗位管理', 1, 5, '/system/post', 'system/post/index', 'C', '1', '0', '0', 'system:post:list', '二级菜单：岗位管理'),
+(106, '日志管理', 1, 6, '/system/log', 'system/log/index', 'C', '1', '0', '0', 'system:log:list', '二级菜单：日志管理');
 
 -- 插入二级菜单（系统监控）
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, menu_type, is_frame, visible, status, icon, remark)
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, menu_type, is_frame, visible, status, perms, remark)
 VALUES 
-(201, '在线用户', 2, 1, '/monitor/online', 'monitor/online/index', 'C', '1', '0', '0', 'online', '二级菜单：在线用户', 0),
-(202, '数据监控', 2, 2, '/monitor/data', 'monitor/data/index', 'C', '1', '0', '0', 'data', '二级菜单：数据监控', 0);
+(201, '在线用户', 2, 1, '/monitor/online', 'monitor/online/index', 'C', '1', '0', '0', 'monitor:online:list', '二级菜单：在线用户'),
+(202, '数据监控', 2, 2, '/monitor/data', 'monitor/data/index', 'C', '1', '0', '0', 'monitor:data:list', '二级菜单：数据监控');
 
 -- 插入二级菜单（系统工具）
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, menu_type, is_frame, visible, status, icon, remark)
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, menu_type, is_frame, visible, status, perms, remark)
 VALUES 
-(301, '测试页面', 3, 1, '/tools/test', 'tools/test/index', 'C', '1', '0', '0', 'test', '二级菜单：测试页面', 0);
+(301, '测试页面', 3, 1, '/tools/test', 'tools/test/index', 'C', '1', '0', '0', 'tool:test:list', '二级菜单：测试页面');
 
 -- 插入按钮权限（系统管理 - 增删改查）
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, menu_type, is_frame, visible, status, perms, icon, remark)
 VALUES 
 -- 用户管理按钮
-(1001, '用户新增', 101, 1, null, null, 'F', '1', '0', '0', 'system:user:add', null, '按钮：用户新增', 0),
-(1002, '用户编辑', 101, 2, null, null, 'F', '1', '0', '0', 'system:user:edit', null, '按钮：用户编辑', 0),
-(1003, '用户删除', 101, 3, null, null, 'F', '1', '0', '0', 'system:user:remove', null, '按钮：用户删除', 0),
-(1004, '用户查看', 101, 4, null, null, 'F', '1', '0', '0', 'system:user:query', null, '按钮：用户查看', 0),
+(1001, '用户新增', 101, 1, null, null, 'F', '1', '0', '0', 'system:user:add', null, '按钮：用户新增'),
+(1002, '用户编辑', 101, 2, null, null, 'F', '1', '0', '0', 'system:user:edit', null, '按钮：用户编辑'),
+(1003, '用户删除', 101, 3, null, null, 'F', '1', '0', '0', 'system:user:remove', null, '按钮：用户删除'),
+(1004, '用户查看', 101, 4, null, null, 'F', '1', '0', '0', 'system:user:query', null, '按钮：用户查看'),
 
 -- 角色管理按钮
-(1021, '角色新增', 102, 1, null, null, 'F', '1', '0', '0', 'system:role:add', null, '按钮：角色新增', 0),
-(1022, '角色编辑', 102, 2, null, null, 'F', '1', '0', '0', 'system:role:edit', null, '按钮：角色编辑', 0),
-(1023, '角色删除', 102, 3, null, null, 'F', '1', '0', '0', 'system:role:remove', null, '按钮：角色删除', 0),
-(1024, '角色查看', 102, 4, null, null, 'F', '1', '0', '0', 'system:role:query', null, '按钮：角色查看', 0),
+(1021, '角色新增', 102, 1, null, null, 'F', '1', '0', '0', 'system:role:add', null, '按钮：角色新增'),
+(1022, '角色编辑', 102, 2, null, null, 'F', '1', '0', '0', 'system:role:edit', null, '按钮：角色编辑'),
+(1023, '角色删除', 102, 3, null, null, 'F', '1', '0', '0', 'system:role:remove', null, '按钮：角色删除'),
+(1024, '角色查看', 102, 4, null, null, 'F', '1', '0', '0', 'system:role:query', null, '按钮：角色查看'),
 
 -- 菜单管理按钮
-(1031, '菜单新增', 103, 1, null, null, 'F', '1', '0', '0', 'system:menu:add', null, '按钮：菜单新增', 0),
-(1032, '菜单编辑', 103, 2, null, null, 'F', '1', '0', '0', 'system:menu:edit', null, '按钮：菜单编辑', 0),
-(1033, '菜单删除', 103, 3, null, null, 'F', '1', '0', '0', 'system:menu:remove', null, '按钮：菜单删除', 0),
-(1034, '菜单查看', 103, 4, null, null, 'F', '1', '0', '0', 'system:menu:query', null, '按钮：菜单查看', 0),
+(1031, '菜单新增', 103, 1, null, null, 'F', '1', '0', '0', 'system:menu:add', null, '按钮：菜单新增'),
+(1032, '菜单编辑', 103, 2, null, null, 'F', '1', '0', '0', 'system:menu:edit', null, '按钮：菜单编辑'),
+(1033, '菜单删除', 103, 3, null, null, 'F', '1', '0', '0', 'system:menu:remove', null, '按钮：菜单删除'),
+(1034, '菜单查看', 103, 4, null, null, 'F', '1', '0', '0', 'system:menu:query', null, '按钮：菜单查看'),
 
 -- 部门管理按钮
-(1041, '部门新增', 104, 1, null, null, 'F', '1', '0', '0', 'system:dept:add', null, '按钮：部门新增', 0),
-(1042, '部门编辑', 104, 2, null, null, 'F', '1', '0', '0', 'system:dept:edit', null, '按钮：部门编辑', 0),
-(1043, '部门删除', 104, 3, null, null, 'F', '1', '0', '0', 'system:dept:remove', null, '按钮：部门删除', 0),
-(1044, '部门查看', 104, 4, null, null, 'F', '1', '0', '0', 'system:dept:query', null, '按钮：部门查看', 0);
+(1041, '部门新增', 104, 1, null, null, 'F', '1', '0', '0', 'system:dept:add', null, '按钮：部门新增'),
+(1042, '部门编辑', 104, 2, null, null, 'F', '1', '0', '0', 'system:dept:edit', null, '按钮：部门编辑'),
+(1043, '部门删除', 104, 3, null, null, 'F', '1', '0', '0', 'system:dept:remove', null, '按钮：部门删除'),
+(1044, '部门查看', 104, 4, null, null, 'F', '1', '0', '0', 'system:dept:query', null, '按钮：部门查看');
 
 -- ----------------------------
 -- 6.角色和菜单关联

@@ -1,10 +1,11 @@
-import { Global, Module } from '@nestjs/common';
-import { UtilService } from './services/utils.service';
-import { ConfigService } from '@nestjs/config';
 import { RedisModule } from '@nestjs-modules/ioredis';
-import { JwtModule } from '@nestjs/jwt';
+import { Global, Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
+import { JwtModule } from '@nestjs/jwt';
 import { AuthGuard } from 'src/common/guard/auth.guard';
+import { PermissionGuard } from 'src/common/guard/permission.guard';
+import { UtilService } from './services/utils.service';
 
 /**
  * 全局共享模块
@@ -41,6 +42,10 @@ import { AuthGuard } from 'src/common/guard/auth.guard';
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PermissionGuard,
     },
   ],
   exports: [JwtModule, UtilService],
