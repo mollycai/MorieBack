@@ -7,5 +7,6 @@ import { MenuService } from './menu.service';
 @Module({
   controllers: [MenuController],
   providers: [MenuService, PrismaService, RoleService],
+  exports: [MenuService],
 })
 export class MenuModule {}

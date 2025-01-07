@@ -8,18 +8,7 @@ import { MenuService } from './menu.service';
 @Controller('system/menu')
 export class MenuController {
   constructor(private readonly menuService: MenuService) {}
-
-	/**
-   * @description: 根据用户返回路由菜单
-   * @param params
-   * @returns
-   */
-@Get('/getRoute')
-  @ApiOperation({ summary: '根据用户返回路由菜单' })
-  findMenuByUserId(@Query() params: { userId: number }) {
-    return this.menuService.findMenusByUserId(params.userId);
-  }
-
+	
   /**
    * @description: 菜单列表
    * @param params

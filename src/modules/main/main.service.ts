@@ -14,10 +14,10 @@ import {
 import { ApiException } from '../../common/exceptions/api.exception';
 import { LogService } from '../system/log/log.service';
 import { UserService } from '../system/user/user.service';
-import { ImageCaptcha, ImageCaptchaDto } from './login.dto';
+import { ImageCaptcha, ImageCaptchaDto } from './main.dto';
 
 @Injectable()
-export class LoginService {
+export class MainService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
