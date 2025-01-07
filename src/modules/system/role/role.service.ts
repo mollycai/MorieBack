@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { sys_role } from '@prisma/client';
+import { uniq } from 'lodash';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { UtilService } from 'src/shared/services/utils.service';
 import { ListRoleDto } from './role.dto';
@@ -67,5 +68,23 @@ export class RoleService {
       pageNum: Number(pageNum),
       pageSize: take,
     });
+  }
+
+  /**
+   * 根据userId查询角色
+   * @param userId
+   */
+  async findRoleByUserId(userId: number) {
+		// @TODO 其实还要考虑根据角色id查询角色的status是否被停用，但正在使用的角色应该不能被停用
+    const userWithRoleList = await this.prisma.sys_user_role.findMany({
+      where: { // @TODO 这里强转下，前端传number到这里仍然变成string
+        user_id: +userId,
+      },
+      select: {
+        role_id: true,
+      },
+    });
+    const roleIds = userWithRoleList.map((role) => role.role_id);
+    return uniq(roleIds);
   }
 }

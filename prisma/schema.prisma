@@ -149,5 +149,5 @@ model sys_menu {
   update_by   String?   @default("") @db.VarChar(64)
   update_time DateTime? @db.DateTime(0)
   remark      String?   @default("") @db.VarChar(500)
-  del_flag    String?   @default("0") @db.Char(1)
+  del_flag    Int?      @default(0)
 }

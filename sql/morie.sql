@@ -119,7 +119,7 @@ create table sys_menu (
   update_by         varchar(64)     default ''                 comment '更新者',
   update_time       datetime                                   comment '更新时间',
   remark            varchar(500)    default ''                 comment '备注',
-	del_flag      		char(1)         default '0'                comment '删除标志（0代表存在 1代表删除）',
+	del_flag      		int(1)          default 0                comment '删除标志（0代表存在 1代表删除）',
   primary key (menu_id)
 ) engine=innodb auto_increment=2000 comment = '菜单权限表';
 
@@ -146,8 +146,8 @@ VALUES
 -- 三级菜单
 INSERT INTO sys_menu (menu_id, menu_name, menu_key, parent_id, order_num, path, component, menu_type, is_frame, visible, status, perms, create_by, create_time, remark)
 VALUES 
-(600, '操作日志', 'operatelog', 106, 1, '/system/log/operate', 'system/log/operate/index', 'C', '1', '0', '0', 'system:log:list', 'superadmin', sysdate(), '三级菜单：日志管理'),
-(601, '登录日志', 'loginlog', 106, 2, '/system/log/login', 'system/log/login/index', 'C', '1', '0', '0', 'system:log:list', 'superadmin', sysdate(), '三级菜单：日志管理');
+(601, '操作日志', 'operatelog', 106, 1, '/system/log/operate', 'system/log/operate/index', 'C', '1', '0', '0', 'system:operatelog:list', 'superadmin', sysdate(), '三级菜单：日志管理'),
+(602, '登录日志', 'loginlog', 106, 2, '/system/log/login', 'system/log/login/index', 'C', '1', '0', '0', 'system:loginlog:list', 'superadmin', sysdate(), '三级菜单：日志管理');
 
 -- 插入二级菜单（系统监控）
 INSERT INTO sys_menu (menu_id, menu_name, menu_key, parent_id, order_num, path, component, menu_type, is_frame, visible, status, perms, create_by, create_time, remark)
@@ -209,6 +209,7 @@ INSERT INTO sys_role_menu VALUES (1, 102); -- 角色管理
 INSERT INTO sys_role_menu VALUES (1, 103); -- 菜单管理
 INSERT INTO sys_role_menu VALUES (1, 104); -- 部门管理
 INSERT INTO sys_role_menu VALUES (1, 105); -- 岗位管理
+INSERT INTO sys_role_menu VALUES (1, 106); -- 日志管理
 
 INSERT INTO sys_role_menu VALUES (1, 601); -- 操作日志管理
 INSERT INTO sys_role_menu VALUES (1, 602); -- 登录日志管理
