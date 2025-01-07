@@ -1,22 +1,36 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
-	IsDateString,
 	IsInt,
 	IsNotEmpty,
+	IsNumberString,
 	IsOptional,
 	IsString,
-	Min,
+	Min
 } from 'class-validator';
 
 /**
  * @description 时间区间对象
  */
 export class DateParamsDTO {
-  @IsDateString()
+	@ApiProperty({
+    type: Number,
+    description: '开始日期',
+    default: 1721145600000,
+    required: false,
+  })
+  @IsOptional()
+  @IsNumberString({}, { message: '开始日期必须是时间戳格式' })
   beginTime?: string;
 
-  @IsDateString()
+  @ApiProperty({
+    type: Number,
+    description: '结束日期',
+    default: 1721318399999,
+    required: false,
+  })
+  @IsOptional()
+  @IsNumberString({}, { message: '结束日期必须是时间戳格式' })
   endTime?: string;
 }
 

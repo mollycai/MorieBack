@@ -101,6 +101,7 @@ drop table if exists sys_menu;
 create table sys_menu (
   menu_id           int             not null auto_increment    comment '菜单ID',
   menu_name         varchar(50)     not null                   comment '菜单名称',
+	menu_key          varchar(50)     default ''                 comment '菜单标识',
   parent_id         int             default 0                  comment '父菜单ID',
   order_num         int(4)          default 0                  comment '显示顺序',
   path              varchar(200)    default ''                 comment '路由地址',
@@ -109,8 +110,8 @@ create table sys_menu (
   is_frame          int(1)          default 1                  comment '是否为外链（0是 1否）',
   is_cache          int(1)          default 0                  comment '是否缓存（0缓存 1不缓存）',
   menu_type         char(1)         default ''                 comment '菜单类型（M目录 C菜单 F按钮）',
-  visible           char(1)         default 0                  comment '菜单状态（0显示 1隐藏）',
-  status            char(1)         default 0                  comment '菜单状态（0正常 1停用）',
+  visible           int(1)          default 0                  comment '菜单状态（0显示 1隐藏）',
+  status            int(1)          default 0                  comment '菜单状态（0正常 1停用）',
   perms             varchar(100)    default null               comment '权限标识',
   icon              varchar(100)    default '#'                comment '菜单图标',
   create_by         varchar(64)     default ''                 comment '创建者',
@@ -126,59 +127,65 @@ create table sys_menu (
 -- 初始化-菜单表数据
 -- ----------------------------
 -- 插入一级菜单
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, menu_type, is_frame, visible, status, icon, remark)
+INSERT INTO sys_menu (menu_id, menu_name, menu_key, parent_id, order_num, path, component, menu_type, is_frame, visible, status, icon, create_by, create_time, remark)
 VALUES 
-(1, '系统管理', 0, 1, '/system', null, 'M', '1', '0', '0', 'system', '一级菜单：系统管理'),
-(2, '系统监控', 0, 2, '/monitor', null, 'M', '1', '0', '0', 'monitor', '一级菜单：系统监控'),
-(3, '系统工具', 0, 3, '/tools', null, 'M', '1', '0', '0', 'tools', '一级菜单：系统工具');
+(1, '系统管理', 'system', 0, 1, '/system', null, 'M', '1', '0', '0', 'system', 'superadmin', sysdate(), '一级菜单：系统管理'),
+(2, '系统监控', 'monitor', 0, 2, '/monitor', null, 'M', '1', '0', '0', 'monitor', 'superadmin', sysdate(), '一级菜单：系统监控'),
+(3, '系统工具', 'tools', 0, 3, '/tools', null, 'M', '1', '0', '0', 'tools', 'superadmin', sysdate(), '一级菜单：系统工具');
 
 -- 插入二级菜单（系统管理）
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, menu_type, is_frame, visible, status, perms, remark)
+INSERT INTO sys_menu (menu_id, menu_name, menu_key, parent_id, order_num, path, component, menu_type, is_frame, visible, status, perms, create_by, create_time, remark)
 VALUES 
-(101, '用户管理', 1, 1, '/system/user', 'system/user/index', 'C', '1', '0', '0', 'system:user:list', '二级菜单：用户管理'),
-(102, '角色管理', 1, 2, '/system/role', 'system/role/index', 'C', '1', '0', '0', 'system:role:list', '二级菜单：角色管理'),
-(103, '菜单管理', 1, 3, '/system/menu', 'system/menu/index', 'C', '1', '0', '0', 'system:menu:list', '二级菜单：菜单管理'),
-(104, '部门管理', 1, 4, '/system/dept', 'system/dept/index', 'C', '1', '0', '0', 'system:dept:list', '二级菜单：部门管理'),
-(105, '岗位管理', 1, 5, '/system/post', 'system/post/index', 'C', '1', '0', '0', 'system:post:list', '二级菜单：岗位管理'),
-(106, '日志管理', 1, 6, '/system/log', 'system/log/index', 'C', '1', '0', '0', 'system:log:list', '二级菜单：日志管理');
+(101, '用户管理', 'user', 1, 1, '/system/user', 'system/user/index', 'C', '1', '0', '0', 'system:user:list', 'superadmin', sysdate(), '二级菜单：用户管理'),
+(102, '角色管理', 'role', 1, 2, '/system/role', 'system/role/index', 'C', '1', '0', '0', 'system:role:list', 'superadmin', sysdate(), '二级菜单：角色管理'),
+(103, '菜单管理', 'menu', 1, 3, '/system/menu', 'system/menu/index', 'C', '1', '0', '0', 'system:menu:list', 'superadmin', sysdate(), '二级菜单：菜单管理'),
+(104, '部门管理', 'dept', 1, 4, '/system/dept', 'system/dept/index', 'C', '1', '0', '0', 'system:dept:list', 'superadmin', sysdate(), '二级菜单：部门管理'),
+(105, '岗位管理', 'post', 1, 5, '/system/post', 'system/post/index', 'C', '1', '0', '0', 'system:post:list', 'superadmin', sysdate(), '二级菜单：岗位管理'),
+(106, '日志管理', 'log', 1, 6, '/system/log', '', 'C', '1', '0', '0', '', 'superadmin', sysdate(), '二级菜单：日志管理');
+
+-- 三级菜单
+INSERT INTO sys_menu (menu_id, menu_name, menu_key, parent_id, order_num, path, component, menu_type, is_frame, visible, status, perms, create_by, create_time, remark)
+VALUES 
+(600, '操作日志', 'operatelog', 106, 1, '/system/log/operate', 'system/log/operate/index', 'C', '1', '0', '0', 'system:log:list', 'superadmin', sysdate(), '三级菜单：日志管理'),
+(601, '登录日志', 'loginlog', 106, 2, '/system/log/login', 'system/log/login/index', 'C', '1', '0', '0', 'system:log:list', 'superadmin', sysdate(), '三级菜单：日志管理');
 
 -- 插入二级菜单（系统监控）
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, menu_type, is_frame, visible, status, perms, remark)
+INSERT INTO sys_menu (menu_id, menu_name, menu_key, parent_id, order_num, path, component, menu_type, is_frame, visible, status, perms, create_by, create_time, remark)
 VALUES 
-(201, '在线用户', 2, 1, '/monitor/online', 'monitor/online/index', 'C', '1', '0', '0', 'monitor:online:list', '二级菜单：在线用户'),
-(202, '数据监控', 2, 2, '/monitor/data', 'monitor/data/index', 'C', '1', '0', '0', 'monitor:data:list', '二级菜单：数据监控');
+(201, '在线用户', 'online', 2, 1, '/monitor/online', 'monitor/online/index', 'C', '1', '0', '0', 'monitor:online:list', 'superadmin', sysdate(), '二级菜单：在线用户'),
+(202, '数据监控', 'data', 2, 2, '/monitor/data', 'monitor/data/index', 'C', '1', '0', '0', 'monitor:data:list', 'superadmin', sysdate(), '二级菜单：数据监控');
 
 -- 插入二级菜单（系统工具）
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, menu_type, is_frame, visible, status, perms, remark)
+INSERT INTO sys_menu (menu_id, menu_name, menu_key, parent_id, order_num, path, component, menu_type, is_frame, visible, status, perms, create_by, create_time, remark)
 VALUES 
-(301, '测试页面', 3, 1, '/tools/test', 'tools/test/index', 'C', '1', '0', '0', 'tool:test:list', '二级菜单：测试页面');
+(301, '测试页面', 'test', 3, 1, '/tools/test', 'tools/test/index', 'C', '1', '0', '0', 'tool:test:list', 'superadmin', sysdate(), '二级菜单：测试页面');
 
 -- 插入按钮权限（系统管理 - 增删改查）
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, menu_type, is_frame, visible, status, perms, icon, remark)
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, menu_type, is_frame, visible, status, perms, icon, create_by, create_time, remark)
 VALUES 
 -- 用户管理按钮
-(1001, '用户新增', 101, 1, null, null, 'F', '1', '0', '0', 'system:user:add', null, '按钮：用户新增'),
-(1002, '用户编辑', 101, 2, null, null, 'F', '1', '0', '0', 'system:user:edit', null, '按钮：用户编辑'),
-(1003, '用户删除', 101, 3, null, null, 'F', '1', '0', '0', 'system:user:remove', null, '按钮：用户删除'),
-(1004, '用户查看', 101, 4, null, null, 'F', '1', '0', '0', 'system:user:query', null, '按钮：用户查看'),
+(1001, '用户新增', 101, 1, null, null, 'F', '1', '0', '0', 'system:user:add', null, 'superadmin', sysdate(), '按钮：用户新增'),
+(1002, '用户编辑', 101, 2, null, null, 'F', '1', '0', '0', 'system:user:edit', null, 'superadmin', sysdate(), '按钮：用户编辑'),
+(1003, '用户删除', 101, 3, null, null, 'F', '1', '0', '0', 'system:user:remove', null, 'superadmin', sysdate(), '按钮：用户删除'),
+(1004, '用户查看', 101, 4, null, null, 'F', '1', '0', '0', 'system:user:query', null, 'superadmin', sysdate(), '按钮：用户查看'),
 
 -- 角色管理按钮
-(1021, '角色新增', 102, 1, null, null, 'F', '1', '0', '0', 'system:role:add', null, '按钮：角色新增'),
-(1022, '角色编辑', 102, 2, null, null, 'F', '1', '0', '0', 'system:role:edit', null, '按钮：角色编辑'),
-(1023, '角色删除', 102, 3, null, null, 'F', '1', '0', '0', 'system:role:remove', null, '按钮：角色删除'),
-(1024, '角色查看', 102, 4, null, null, 'F', '1', '0', '0', 'system:role:query', null, '按钮：角色查看'),
+(1021, '角色新增', 102, 1, null, null, 'F', '1', '0', '0', 'system:role:add', null, 'superadmin', sysdate(), '按钮：角色新增'),
+(1022, '角色编辑', 102, 2, null, null, 'F', '1', '0', '0', 'system:role:edit', null, 'superadmin', sysdate(), '按钮：角色编辑'),
+(1023, '角色删除', 102, 3, null, null, 'F', '1', '0', '0', 'system:role:remove', null, 'superadmin', sysdate(), '按钮：角色删除'),
+(1024, '角色查看', 102, 4, null, null, 'F', '1', '0', '0', 'system:role:query', null, 'superadmin', sysdate(), '按钮：角色查看'),
 
 -- 菜单管理按钮
-(1031, '菜单新增', 103, 1, null, null, 'F', '1', '0', '0', 'system:menu:add', null, '按钮：菜单新增'),
-(1032, '菜单编辑', 103, 2, null, null, 'F', '1', '0', '0', 'system:menu:edit', null, '按钮：菜单编辑'),
-(1033, '菜单删除', 103, 3, null, null, 'F', '1', '0', '0', 'system:menu:remove', null, '按钮：菜单删除'),
-(1034, '菜单查看', 103, 4, null, null, 'F', '1', '0', '0', 'system:menu:query', null, '按钮：菜单查看'),
+(1031, '菜单新增', 103, 1, null, null, 'F', '1', '0', '0', 'system:menu:add', null, 'superadmin', sysdate(), '按钮：菜单新增'),
+(1032, '菜单编辑', 103, 2, null, null, 'F', '1', '0', '0', 'system:menu:edit', null, 'superadmin', sysdate(), '按钮：菜单编辑'),
+(1033, '菜单删除', 103, 3, null, null, 'F', '1', '0', '0', 'system:menu:remove', null, 'superadmin', sysdate(), '按钮：菜单删除'),
+(1034, '菜单查看', 103, 4, null, null, 'F', '1', '0', '0', 'system:menu:query', null, 'superadmin', sysdate(), '按钮：菜单查看'),
 
 -- 部门管理按钮
-(1041, '部门新增', 104, 1, null, null, 'F', '1', '0', '0', 'system:dept:add', null, '按钮：部门新增'),
-(1042, '部门编辑', 104, 2, null, null, 'F', '1', '0', '0', 'system:dept:edit', null, '按钮：部门编辑'),
-(1043, '部门删除', 104, 3, null, null, 'F', '1', '0', '0', 'system:dept:remove', null, '按钮：部门删除'),
-(1044, '部门查看', 104, 4, null, null, 'F', '1', '0', '0', 'system:dept:query', null, '按钮：部门查看');
+(1041, '部门新增', 104, 1, null, null, 'F', '1', '0', '0', 'system:dept:add', null, 'superadmin', sysdate(), '按钮：部门新增'),
+(1042, '部门编辑', 104, 2, null, null, 'F', '1', '0', '0', 'system:dept:edit', null, 'superadmin', sysdate(), '按钮：部门编辑'),
+(1043, '部门删除', 104, 3, null, null, 'F', '1', '0', '0', 'system:dept:remove', null, 'superadmin', sysdate(),'按钮：部门删除'),
+(1044, '部门查看', 104, 4, null, null, 'F', '1', '0', '0', 'system:dept:query', null, 'superadmin', sysdate(), '按钮：部门查看');
 
 -- ----------------------------
 -- 6.角色和菜单关联
@@ -202,7 +209,9 @@ INSERT INTO sys_role_menu VALUES (1, 102); -- 角色管理
 INSERT INTO sys_role_menu VALUES (1, 103); -- 菜单管理
 INSERT INTO sys_role_menu VALUES (1, 104); -- 部门管理
 INSERT INTO sys_role_menu VALUES (1, 105); -- 岗位管理
-INSERT INTO sys_role_menu VALUES (1, 106); -- 日志管理
+
+INSERT INTO sys_role_menu VALUES (1, 601); -- 操作日志管理
+INSERT INTO sys_role_menu VALUES (1, 602); -- 登录日志管理
 
 -- 系统监控子菜单
 INSERT INTO sys_role_menu VALUES (1, 201); -- 在线用户

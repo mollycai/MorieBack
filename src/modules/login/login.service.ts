@@ -100,6 +100,9 @@ export class LoginService {
       throw new ApiException(1003);
     }
     // @Todo 获取权限菜单
+		// 根据用户id查询角色
+		// 根据角色查询菜单权限
+		// 暂时都设置为所有权限
 		const perms = ['*:*:*']
     // 生成令牌
     const jwtSign = this.jwtService.sign({
@@ -110,14 +113,11 @@ export class LoginService {
     const expiresIn = this.configService.get<number>('JWT_EXPIRES_IN');
     await this.redisService
       .pipeline()
-			// @Todo 关于修改密码和设置密码版本的操作
-      // .set(`${USER_VERSION_KEY}:${user.user_id}`, 1)
       .set(`${USER_TOKEN_KEY}:${user.user_id}`, jwtSign, 'EX', expiresIn)
 			.set(`${USER_PERMS_KEY}:${user.user_id}`, JSON.stringify(perms))
       .exec();
     // @Todo redis 缓存菜单
 
-    // @Todo 保存登录日志
 		await this.logService.saveLoginLog(Number(user.user_id), ipAddr)
     return jwtSign;
   }
