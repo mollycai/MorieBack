@@ -1,10 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { uniq } from 'lodash';
+import { isEmpty, uniq } from 'lodash';
+import {
+	CODE_EMPTY,
+	CODE_EXIST,
+	MSG_CREATE,
+	MSG_DELETE,
+	MSG_UPDATE,
+} from 'src/common/constants/code.constants';
+import { IS_DELETE, NOT_DELETE } from 'src/common/constants/user.constant';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { UtilService } from 'src/shared/services/utils.service';
 import { RoleService } from '../role/role.service';
 import { MENU_TYPE } from './menu.constants';
-import { MenuParamsDto } from './menu.dto';
+import { CreateMenuDto, MenuParamsDto, UpdateMenuDto } from './menu.dto';
 import { convertFlatDataToTree } from './menu.utils';
 
 @Injectable()
@@ -19,14 +27,18 @@ export class MenuService {
    * @returns
    */
   async findAll({ menuName, status }: MenuParamsDto) {
-    const where = {};
+    const where = {
+      del_flag: NOT_DELETE,
+    };
     if (status) {
       where['status'] = status;
     }
     if (menuName) {
-      where['menuName'] = { contains: menuName, mode: 'insensitive' };
+      where['menu_name'] = { contains: menuName, mode: 'insensitive' };
     }
-    const menuList = await this.prisma.sys_menu.findMany(where);
+    const menuList = await this.prisma.sys_menu.findMany({
+      where,
+    });
     return this.utilService.responseMessage({
       data: convertFlatDataToTree(menuList, MENU_TYPE),
     });
@@ -53,7 +65,7 @@ export class MenuService {
     // 菜单列表
     const menuList = await this.prisma.sys_menu.findMany({
       where: {
-        del_flag: 0,
+        del_flag: NOT_DELETE,
         status: 0,
         menu_id: {
           in: menuIds,
@@ -70,6 +82,7 @@ export class MenuService {
   }
 
   /**
+   * @TODO 再添加个checkedKeys列表
    * 根据角色id查询菜单
    * @param roleId
    */
@@ -96,7 +109,7 @@ export class MenuService {
     // 查询菜单列表
     const menuList = await this.prisma.sys_menu.findMany({
       where: {
-        del_flag: 0, // 未删除
+        del_flag: NOT_DELETE, // 未删除
         status: 0, // 启用状态
         menu_id: {
           in: menuIds,
@@ -110,6 +123,131 @@ export class MenuService {
     // 构造树状结构
     return this.utilService.responseMessage({
       data: convertFlatDataToTree(menuList, MENU_TYPE),
+    });
+  }
+
+  /**
+   * 创建菜单
+   * @param createMenuDto
+   * @returns
+   */
+  async create(createMenuDto: CreateMenuDto) {
+    const {
+      parentId, // 解构并重命名字段
+      orderNum: order_num,
+      isFrame: is_frame,
+      isCache: is_cache,
+      menuKey: menu_key,
+      menuName: menu_name,
+      menuType: menu_type,
+      createTime: create_time = new Date(),
+      createBy: create_by = 'superadmin',
+      ...rest
+    } = createMenuDto;
+
+    if (isEmpty(menu_name) || isEmpty(menu_key)) {
+      return this.utilService.responseMessage({
+        msg: '请输入菜单名和菜单标识',
+        code: CODE_EMPTY,
+      });
+    }
+
+		if (isEmpty(menu_type)) {
+      return this.utilService.responseMessage({
+        msg: '请选择菜单类型',
+        code: CODE_EMPTY,
+      });
+    }
+
+    await this.prisma.sys_menu.create({
+      data: {
+        parent_id: parentId || 0,
+        order_num,
+        is_frame,
+        is_cache,
+        menu_key,
+        menu_type,
+        menu_name,
+        create_time,
+        create_by,
+        ...rest, // 其他字段直接映射
+      },
+    });
+
+    return this.utilService.responseMessage({
+      msg: MSG_CREATE,
+    });
+  }
+
+  async update(updateMenuDto: UpdateMenuDto) {
+    const {
+      menuId,
+      parentId: parent_id, // 解构并重命名字段
+      orderNum: order_num,
+      isFrame: is_frame,
+      isCache: is_cache,
+      menuType: menu_type,
+			menuKey: menu_key,
+      menuName: menu_name,
+      updateTime: update_time = new Date(),
+      updateBy: update_by = 'superadmin',
+      ...rest
+    } = updateMenuDto;
+
+    await this.prisma.sys_menu.update({
+      where: { menu_id: menuId },
+      data: {
+        parent_id,
+        order_num,
+        is_frame,
+        is_cache,
+				menu_key,
+        menu_type,
+        menu_name,
+        update_time,
+        update_by,
+        ...rest, // 其他字段直接映射
+      },
+    });
+
+    return this.utilService.responseMessage({
+      msg: MSG_UPDATE,
+    });
+  }
+
+  /**
+   * 删除菜单 (逻辑删除)
+   * @param menuId
+   */
+  async remove(menuId: number) {
+    // 检查是否有子菜单
+    const childMenus = await this.prisma.sys_menu.findMany({
+      where: {
+        parent_id: menuId,
+        del_flag: NOT_DELETE, // 未删除的子菜单
+      },
+    });
+		
+    if (childMenus.length > 0) {
+      // 如果存在子菜单，返回错误信息
+      return this.utilService.responseMessage({
+        msg: '无法删除：该菜单下还有子菜单，请先删除子菜单。',
+        code: CODE_EXIST, // 自定义错误码
+      });
+    }
+
+    // 如果没有子菜单，执行逻辑删除
+    await this.prisma.sys_menu.update({
+      where: {
+        menu_id: menuId,
+      },
+      data: {
+        del_flag: IS_DELETE, // 标记为已删除
+      },
+    });
+
+    return this.utilService.responseMessage({
+      msg: MSG_DELETE,
     });
   }
 }

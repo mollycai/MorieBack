@@ -1,7 +1,15 @@
-import { Controller, Get, Query } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+	Body,
+	Controller,
+	Delete,
+	Get,
+	Post,
+	Put,
+	Query,
+} from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Permission } from 'src/common/decorators/permissions.decorator';
-import { MenuParamsDto } from './menu.dto';
+import { CreateMenuDto, MenuParamsDto, UpdateMenuDto } from './menu.dto';
 import { MenuService } from './menu.service';
 
 @ApiTags('菜单模块')
@@ -21,4 +29,42 @@ export class MenuController {
     return this.menuService.findAll(params);
   }
 
+  /**
+   * @description: 创建菜单
+   */
+  @Post()
+  @ApiOperation({ summary: '创建菜单' })
+  @ApiBody({
+    type: CreateMenuDto,
+    required: true,
+  })
+  create(@Body() createMenuDto: CreateMenuDto) {
+    return this.menuService.create(createMenuDto);
+  }
+
+  /**
+   * @description: 修改菜单
+   */
+  @Put()
+  @ApiOperation({ summary: '修改菜单' })
+  @ApiBody({
+    type: UpdateMenuDto,
+    required: true,
+  })
+  update(@Body() updateMenuDto: UpdateMenuDto) {
+    return this.menuService.update(updateMenuDto);
+  }
+
+  /**
+   * @description: 删除菜单
+   */
+  @Delete()
+  @ApiOperation({ summary: '删除菜单' })
+  @ApiBody({
+    type: Object,
+    required: true,
+  })
+  remove(@Body() id: { menuId: number }) {
+    return this.menuService.remove(id.menuId);
+  }
 }
