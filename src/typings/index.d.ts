@@ -6,7 +6,7 @@ declare namespace CommonType {
     code: number; // 状态码
     data?: T; // 业务数据
     msg: string; // 响应信息
-    timestamp: string; // 时间戳
+    timestamp?: string; // 时间戳
   };
 
   /**

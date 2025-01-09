@@ -60,11 +60,15 @@ export class UtilService {
    * @param code 状态码，默认值 200 表示成功
    * @returns 统一的返回体对象
    */
-  public responseMessage<T>(
-    data: T,
-    msg: string = MsgEnum.MSG_SUCCESS,
-    code: number = CODE_SUCCESS,
-  ): CommonType.Response<T> {
+  public responseMessage<T>({
+    data,
+    msg = MsgEnum.MSG_SUCCESS,
+    code = CODE_SUCCESS,
+  }: {
+    data?: T;
+    msg?: string;
+    code?: number;
+  }): CommonType.Response<T> {
     return {
       data,
       msg,

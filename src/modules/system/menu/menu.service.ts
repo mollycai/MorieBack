@@ -3,7 +3,7 @@ import { uniq } from 'lodash';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { UtilService } from 'src/shared/services/utils.service';
 import { RoleService } from '../role/role.service';
-import { MENU_TYPE, ROUTER_TYPE } from './menu.constants';
+import { MENU_TYPE } from './menu.constants';
 import { MenuParamsDto } from './menu.dto';
 import { convertFlatDataToTree } from './menu.utils';
 
@@ -27,9 +27,9 @@ export class MenuService {
       where['menuName'] = { contains: menuName, mode: 'insensitive' };
     }
     const menuList = await this.prisma.sys_menu.findMany(where);
-    return this.utilService.responseMessage(
-      convertFlatDataToTree(menuList, MENU_TYPE),
-    );
+    return this.utilService.responseMessage({
+      data: convertFlatDataToTree(menuList, MENU_TYPE),
+    });
   }
 
   /**
@@ -64,8 +64,8 @@ export class MenuService {
       },
     });
     // 构造树
-    return this.utilService.responseMessage(
-      convertFlatDataToTree(menuList, ROUTER_TYPE),
-    );
+    return this.utilService.responseMessage({
+      data: convertFlatDataToTree(menuList, MENU_TYPE),
+    });
   }
 }

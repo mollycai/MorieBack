@@ -1,19 +1,20 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
+	IsDate,
 	IsInt,
 	IsNotEmpty,
 	IsNumberString,
 	IsOptional,
 	IsString,
-	Min
+	Min,
 } from 'class-validator';
 
 /**
  * @description 时间区间对象
  */
 export class DateParamsDTO {
-	@ApiProperty({
+  @ApiProperty({
     type: Number,
     description: '开始日期',
     default: 1721145600000,
@@ -70,4 +71,29 @@ export class PaginatingDTO {
   @IsOptional()
   @IsString()
   params?: DateParamsDTO;
+}
+
+/**
+ * @description 创建记录的DTO
+ */
+export class CreatingDTO {
+  @ApiProperty({
+    type: Date,
+    description: '创建日期',
+    default: new Date(),
+    required: false,
+  })
+  @IsOptional()
+  @IsDate()
+  createTime?: Date;
+
+  @ApiProperty({
+    type: String,
+    description: '创建人',
+    default: 'superadmin',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  createBy?: string;
 }

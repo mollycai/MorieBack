@@ -24,3 +24,9 @@ export const IS_CACHE = 0;
 
 /** 是否缓存（否） */
 export const NOT_CACHE = 1;
+
+/** 是否删除（是） */
+export const IS_DELETE = '2'
+
+/** 是否删除（否） */
+export const NOT_DELETE = '0'
