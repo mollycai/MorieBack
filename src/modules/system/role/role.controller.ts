@@ -1,14 +1,15 @@
 import {
-	Body,
-	Controller,
-	Delete,
-	Get,
-	Post,
-	Put,
-	Query,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Put,
+  Query,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Permission } from 'src/common/decorators/permissions.decorator';
+import { MenuService } from '../menu/menu.service';
 import { NOTIN } from '../user/user.constant';
 import { AllocatedListDto, BatchAuthDto } from '../user/user.dto';
 import { UserService } from '../user/user.service';
@@ -21,6 +22,7 @@ export class RoleController {
   constructor(
     private readonly roleService: RoleService,
     private readonly userService: UserService,
+    private readonly menuService: MenuService,
   ) {}
 
   /**
@@ -133,5 +135,19 @@ export class RoleController {
   @Put('auth/grant')
   authUserGrant(@Body() body: BatchAuthDto) {
     return this.userService.grantAuth(body);
+  }
+
+  /**
+   * @description: 根据角色查询菜单列表
+   * @param roleId
+   * @returns
+   */
+  @Get('/findMenuByRole')
+  @ApiOperation({
+    summary: '角色管理-根据角色查询菜单列表',
+  })
+  @Permission('system:menu:query')
+  findMenusByRoleId(@Query() query: { roleId: number }) {
+    return this.menuService.findMenusByRoleId(query);
   }
 }

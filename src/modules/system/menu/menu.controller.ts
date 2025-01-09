@@ -8,7 +8,7 @@ import { MenuService } from './menu.service';
 @Controller('system/menu')
 export class MenuController {
   constructor(private readonly menuService: MenuService) {}
-	
+
   /**
    * @description: 菜单列表
    * @param params

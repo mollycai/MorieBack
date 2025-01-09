@@ -89,7 +89,7 @@ export class UserService {
     // 通过 roleId 获取关联的 userId 列表
     const userMappings = await this.prisma.sys_user_role.findMany({
       where: {
-        role_id: roleId,
+        role_id: +roleId,
       },
       select: {
         user_id: true,
@@ -275,6 +275,7 @@ export class UserService {
 
   /**
    * @description: 查询用户列表
+	 * @param ListUserDto
    */
   async findAll({
     userId,
@@ -329,6 +330,7 @@ export class UserService {
 
   /**
    * @description: 创建用户
+	 * @param createUserDto
    */
   async create(createUserDto: CreateUserDto) {
     const {
@@ -347,14 +349,14 @@ export class UserService {
       createBy = 'superadmin',
     } = createUserDto;
     /**@TODO post和dept暂时不做 */
-		console.log(password, isEmpty(roleId))
+    console.log(password, isEmpty(roleId));
     if (isEmpty(userName) || isEmpty(nickName)) {
       return this.utilService.responseMessage({
         msg: '用户名和昵称不能为空',
         code: CODE_EMPTY,
       });
     }
-		if (isEmpty(password)) {
+    if (isEmpty(password)) {
       return this.utilService.responseMessage({
         msg: '密码不能为空',
         code: CODE_EMPTY,
@@ -402,6 +404,7 @@ export class UserService {
 
   /**
    * @description: 更新用户
+	 * @param updateUserDto
    */
   async update(updateUserDto: UpdateUserDto) {
     const {
@@ -438,16 +441,17 @@ export class UserService {
       });
     }
     await this.prisma.$transaction(async (prisma) => {
-			// 先根据userId，查原来的roleId
+      // 先根据userId，查原来的roleId
       const { role_id } = await prisma.sys_user_role.findFirst({
         where: { user_id: userId },
       });
 
-			// 再更新对应userId新的roleId
+      // 再更新对应userId新的roleId
       await prisma.sys_user_role.update({
         where: {
-          user_id_role_id: { // 复合主键
-						role_id,
+          user_id_role_id: {
+            // 复合主键
+            role_id,
             user_id: userId,
           },
         },
@@ -456,7 +460,7 @@ export class UserService {
         },
       });
 
-			// 更新user信息
+      // 更新user信息
       await prisma.sys_user.update({
         where: { user_id: userId },
         data: {
@@ -482,6 +486,7 @@ export class UserService {
 
   /**
    * @description: 删除用户（软删除，将 del_flag 设置为 2）
+	 * @param userIds
    */
   async remove(userIds: number[]) {
     await this.prisma.$transaction(async (prisma) => {
@@ -504,6 +509,19 @@ export class UserService {
 
     return this.utilService.responseMessage({
       msg: '删除成功',
+    });
+  }
+
+  /**
+   * 根据userId查角色
+   * @param userId
+   */
+  async findRoleIdByUserId(userId: number) {
+    const { role_id } = await prisma.sys_user_role.findFirst({
+      where: { user_id: userId },
+    });
+    return this.utilService.responseMessage({
+      data: role_id,
     });
   }
 }

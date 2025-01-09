@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Post, Put, Query } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from 'src/common/decorators/permissions.decorator';
 import { CreateUserDto, ListUserDto, UpdateUserDto } from './user.dto';
 import { UserService } from './user.service';
@@ -56,9 +56,26 @@ export class UserController {
    */
   @Delete()
   @ApiOperation({ summary: '用户管理-删除' })
+	@ApiBody({
+    type: Array<number>,
+    required: true,
+  })
   @Permission('system:user:delete')
   remove(@Body() userIds: number[]) {
     return this.userService.remove(userIds);
   }
 	
+	/**
+   * @description: 根据用户查询角色
+   */
+  @Get()
+  @ApiOperation({ summary: '用户管理-根据用户查询角色' })
+	@ApiQuery({
+    type: Array<number>,
+    required: true,
+  })
+  @Permission('system:role:query')
+  findRoleIdByUserId(@Query() userId: number) {
+    return this.userService.findRoleIdByUserId(userId);
+  }
 }

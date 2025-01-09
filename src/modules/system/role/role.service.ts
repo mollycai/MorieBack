@@ -39,17 +39,17 @@ export class RoleService {
       del_flag: NOT_DELETE,
     };
     if (roleId) {
-      where['roleId'] = roleId;
+      where['role_id'] = +roleId;
     }
     if (status) {
       where['status'] = status;
     }
     // 模糊查询
     if (roleName) {
-      where['roleName'] = { contains: roleName, mode: 'insensitive' };
+      where['role_name'] = { contains: roleName, mode: 'insensitive' };
     }
     if (roleKey) {
-      where['roleKey'] = { contains: roleKey, mode: 'insensitive' };
+      where['role_key'] = { contains: roleKey, mode: 'insensitive' };
     }
     const beginTime = params?.beginTime;
     const endTime = params?.endTime;
@@ -189,7 +189,7 @@ export class RoleService {
       remark,
       menuCheckStrictly,
       deptCheckStrictly,
-			updateTime = new Date(),
+      updateTime = new Date(),
       updateBy = 'superadmin',
     } = UpdateRoleDto;
 
@@ -219,8 +219,8 @@ export class RoleService {
           remark,
           menu_check_strictly: menuCheckStrictly,
           dept_check_strictly: deptCheckStrictly,
-					update_time: updateTime,
-					update_by: updateBy
+          update_time: updateTime,
+          update_by: updateBy,
         },
       });
       // 删除旧的菜单关联
@@ -264,8 +264,8 @@ export class RoleService {
           role_id: { in: roleIds },
         },
       });
-			// 删除 `sys_user_role` 表中与角色相关的记录
-			await prisma.sys_user_role.deleteMany({
+      // 删除 `sys_user_role` 表中与角色相关的记录
+      await prisma.sys_user_role.deleteMany({
         where: {
           role_id: { in: roleIds },
         },

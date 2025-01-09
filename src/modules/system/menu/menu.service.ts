@@ -68,4 +68,48 @@ export class MenuService {
       data: convertFlatDataToTree(menuList, MENU_TYPE),
     });
   }
+
+  /**
+   * 根据角色id查询菜单
+   * @param roleId
+   */
+  async findMenusByRoleId({ roleId }) {
+    // 查询角色对应的菜单ID列表
+    const menuWithRoleList = await this.prisma.sys_role_menu.findMany({
+      where: {
+        role_id: +roleId,
+      },
+      select: {
+        menu_id: true,
+      },
+    });
+
+    // 去重菜单ID
+    const menuIds = uniq(menuWithRoleList.map((menu) => menu.menu_id));
+
+    if (menuIds.length === 0) {
+      return this.utilService.responseMessage({
+        data: [],
+      });
+    }
+
+    // 查询菜单列表
+    const menuList = await this.prisma.sys_menu.findMany({
+      where: {
+        del_flag: 0, // 未删除
+        status: 0, // 启用状态
+        menu_id: {
+          in: menuIds,
+        },
+      },
+      orderBy: {
+        order_num: 'asc', // 按照排序字段升序
+      },
+    });
+
+    // 构造树状结构
+    return this.utilService.responseMessage({
+      data: convertFlatDataToTree(menuList, MENU_TYPE),
+    });
+  }
 }

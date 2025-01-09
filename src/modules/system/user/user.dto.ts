@@ -19,9 +19,8 @@ export class AllocatedListDto extends PaginatingDTO {
   userName?: string;
 
   @ApiProperty({ description: '角色ID', required: false })
-  @IsOptional()
   @IsNumber()
-  roleId?: number;
+  roleId: number;
 }
 
 export class BatchAuthDto {
