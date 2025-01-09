@@ -6,14 +6,22 @@ import {
 	CODE_EMPTY,
 	CODE_FORBIDDEN,
 	CODE_NOT_FOUND,
+	MSG_CREATE,
+	MSG_UPDATE,
 } from 'src/common/constants/code.constants';
-import { NOT_DELETE } from 'src/common/constants/user.constant';
+import { IS_DELETE, NOT_DELETE } from 'src/common/constants/user.constant';
 import { ApiException } from 'src/common/exceptions/api.exception';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { prisma } from 'src/prisma';
 import { UtilService } from 'src/shared/services/utils.service';
 import { IN } from './user.constant';
-import { AllocatedListDto, BatchAuthDto } from './user.dto';
+import {
+	AllocatedListDto,
+	BatchAuthDto,
+	CreateUserDto,
+	ListUserDto,
+	UpdateUserDto,
+} from './user.dto';
 
 @Injectable()
 export class UserService {
@@ -131,16 +139,16 @@ export class UserService {
       ],
     });
 
-		const total = await this.prisma.sys_user.count({ where });
+    const total = await this.prisma.sys_user.count({ where });
 
     return this.utilService.responseMessage({
-			data: {
+      data: {
         records,
         total,
         pageNum: Number(pageNum),
         pageSize: take,
       },
-		});
+    });
   }
 
   /**
@@ -190,7 +198,7 @@ export class UserService {
     }
 
     return this.utilService.responseMessage({
-      msg: `成功取消 ${result.count} 个用户对角色ID ${roleId} 的授权`
+      msg: `成功取消 ${result.count} 个用户对角色ID ${roleId} 的授权`,
     });
   }
 
@@ -262,6 +270,240 @@ export class UserService {
 
     return this.utilService.responseMessage({
       msg: `成功为 ${newUserIds.length} 个用户分配角色`,
+    });
+  }
+
+  /**
+   * @description: 查询用户列表
+   */
+  async findAll({
+    userId,
+    userName,
+    status,
+    pageNum,
+    pageSize,
+    params,
+  }: ListUserDto) {
+    const where = {
+      del_flag: NOT_DELETE,
+    };
+    if (userId) {
+      where['user_id'] = userId;
+    }
+    if (status) {
+      where['status'] = status;
+    }
+    if (userName) {
+      where['user_name'] = { contains: userName, mode: 'insensitive' };
+    }
+    const beginTime = params?.beginTime;
+    const endTime = params?.endTime;
+    if (beginTime && endTime) {
+      where['create_time'] = {
+        gte: new Date(Number(beginTime)),
+        lte: new Date(Number(endTime)),
+      };
+    }
+
+    const take = Number(pageSize);
+    const skip = (Number(pageNum) - 1) * take;
+
+    const records = await this.prisma.sys_user.findMany({
+      skip,
+      take,
+      where,
+      orderBy: [{ create_time: 'desc' }],
+    });
+
+    const total = await this.prisma.sys_user.count({ where });
+
+    return this.utilService.responseMessage({
+      data: {
+        records,
+        total,
+        pageNum: Number(pageNum),
+        pageSize: take,
+      },
+    });
+  }
+
+  /**
+   * @description: 创建用户
+   */
+  async create(createUserDto: CreateUserDto) {
+    const {
+      deptId,
+      roleId,
+      userName,
+      nickName,
+      password,
+      email,
+      phonenumber,
+      sex,
+      avatar,
+      status,
+      remark,
+      createTime = new Date(),
+      createBy = 'superadmin',
+    } = createUserDto;
+    /**@TODO post和dept暂时不做 */
+		console.log(password, isEmpty(roleId))
+    if (isEmpty(userName) || isEmpty(nickName)) {
+      return this.utilService.responseMessage({
+        msg: '用户名和昵称不能为空',
+        code: CODE_EMPTY,
+      });
+    }
+		if (isEmpty(password)) {
+      return this.utilService.responseMessage({
+        msg: '密码不能为空',
+        code: CODE_EMPTY,
+      });
+    }
+    if (!roleId) {
+      return this.utilService.responseMessage({
+        msg: '角色不能为空',
+        code: CODE_EMPTY,
+      });
+    }
+
+    // DTO 字段与数据库字段映射
+    const data = {
+      dept_id: deptId,
+      user_name: userName,
+      nick_name: nickName,
+      password: this.utilService.md5(`${password}`), // 加密
+      email,
+      phonenumber,
+      sex,
+      avatar,
+      status,
+      remark,
+      create_time: createTime,
+      create_by: createBy,
+    };
+
+    await this.prisma.$transaction(async (prisma) => {
+      const { user_id } = await prisma.sys_user.create({
+        data,
+        select: { user_id: true },
+      });
+      await prisma.sys_user_role.create({
+        data: {
+          user_id,
+          role_id: roleId,
+        },
+      });
+    });
+    return this.utilService.responseMessage({
+      msg: MSG_CREATE,
+    });
+  }
+
+  /**
+   * @description: 更新用户
+   */
+  async update(updateUserDto: UpdateUserDto) {
+    const {
+      userId,
+      deptId,
+      roleId,
+      userName,
+      nickName,
+      email,
+      phonenumber,
+      sex,
+      avatar,
+      status,
+      remark,
+      updateTime = new Date(),
+      updateBy = 'superadmin',
+    } = updateUserDto;
+    if (!userId) {
+      return this.utilService.responseMessage({
+        msg: '用户ID不能为空',
+        code: CODE_EMPTY,
+      });
+    }
+    if (isEmpty(userName) || isEmpty(nickName)) {
+      return this.utilService.responseMessage({
+        msg: '用户名和昵称不能为空',
+        code: CODE_EMPTY,
+      });
+    }
+    if (!roleId) {
+      return this.utilService.responseMessage({
+        msg: '角色不能为空',
+        code: CODE_EMPTY,
+      });
+    }
+    await this.prisma.$transaction(async (prisma) => {
+			// 先根据userId，查原来的roleId
+      const { role_id } = await prisma.sys_user_role.findFirst({
+        where: { user_id: userId },
+      });
+
+			// 再更新对应userId新的roleId
+      await prisma.sys_user_role.update({
+        where: {
+          user_id_role_id: { // 复合主键
+						role_id,
+            user_id: userId,
+          },
+        },
+        data: {
+          role_id: roleId,
+        },
+      });
+
+			// 更新user信息
+      await prisma.sys_user.update({
+        where: { user_id: userId },
+        data: {
+          dept_id: deptId,
+          user_name: userName,
+          nick_name: nickName,
+          email,
+          phonenumber,
+          sex,
+          avatar,
+          status,
+          remark,
+          update_time: updateTime,
+          update_by: updateBy,
+        },
+      });
+    });
+
+    return this.utilService.responseMessage({
+      msg: MSG_UPDATE,
+    });
+  }
+
+  /**
+   * @description: 删除用户（软删除，将 del_flag 设置为 2）
+   */
+  async remove(userIds: number[]) {
+    await this.prisma.$transaction(async (prisma) => {
+      await prisma.sys_user_role.deleteMany({
+        where: {
+          user_id: { in: userIds },
+        },
+      });
+      await prisma.sys_user.updateMany({
+        where: {
+          user_id: {
+            in: userIds,
+          },
+        },
+        data: {
+          del_flag: IS_DELETE, // 暂时做成不删除，修改del_flag，但这或许会引发无用数据过的的问题，待讨论@TODO
+        },
+      });
+    });
+
+    return this.utilService.responseMessage({
+      msg: '删除成功',
     });
   }
 }

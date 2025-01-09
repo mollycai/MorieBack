@@ -189,6 +189,8 @@ export class RoleService {
       remark,
       menuCheckStrictly,
       deptCheckStrictly,
+			updateTime = new Date(),
+      updateBy = 'superadmin',
     } = UpdateRoleDto;
 
     // 检查角色是否存在
@@ -217,6 +219,8 @@ export class RoleService {
           remark,
           menu_check_strictly: menuCheckStrictly,
           dept_check_strictly: deptCheckStrictly,
+					update_time: updateTime,
+					update_by: updateBy
         },
       });
       // 删除旧的菜单关联
@@ -260,8 +264,14 @@ export class RoleService {
           role_id: { in: roleIds },
         },
       });
+			// 删除 `sys_user_role` 表中与角色相关的记录
+			await prisma.sys_user_role.deleteMany({
+        where: {
+          role_id: { in: roleIds },
+        },
+      });
       // 删除 `sys_role` 表中角色记录
-      await this.prisma.sys_role.updateMany({
+      await prisma.sys_role.updateMany({
         where: {
           role_id: {
             in: roleIds,

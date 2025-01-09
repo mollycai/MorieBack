@@ -9,7 +9,7 @@ import * as svgCaptcha from 'svg-captcha';
 import {
 	CAPTCHA_IMG_KEY,
 	USER_PERMS_KEY,
-	USER_TOKEN_KEY
+	USER_TOKEN_KEY,
 } from '../../common/constants/redis.constans';
 import { ApiException } from '../../common/exceptions/api.exception';
 import { LogService } from '../system/log/log.service';
@@ -100,25 +100,27 @@ export class MainService {
       throw new ApiException(1003);
     }
     // @Todo 获取权限菜单
-		// 根据用户id查询角色
-		// 根据角色查询菜单权限
-		// 暂时都设置为所有权限
-		const perms = ['*:*:*']
-    // 生成令牌
+    // 根据用户id查询角色
+    // 根据角色查询菜单权限
+    // 暂时都设置为所有权限
+    const perms = ['*:*:*'];
+    // @TODO 生成令牌
+    const expiresIn =
+      this.configService.get<string>('JWT_EXPIRES_IN') || '604800';
     const jwtSign = this.jwtService.sign({
       uid: parseInt(user.user_id.toString()),
       pv: 1,
+      expiresIn: '604800',
     });
     // redis 设置token缓存时间和缓存菜单
-    const expiresIn = this.configService.get<number>('JWT_EXPIRES_IN');
     await this.redisService
       .pipeline()
       .set(`${USER_TOKEN_KEY}:${user.user_id}`, jwtSign, 'EX', expiresIn)
-			.set(`${USER_PERMS_KEY}:${user.user_id}`, JSON.stringify(perms))
+      .set(`${USER_PERMS_KEY}:${user.user_id}`, JSON.stringify(perms))
       .exec();
     // @Todo redis 缓存菜单
 
-		await this.logService.saveLoginLog(Number(user.user_id), ipAddr)
+    await this.logService.saveLoginLog(Number(user.user_id), ipAddr);
     return jwtSign;
   }
 }

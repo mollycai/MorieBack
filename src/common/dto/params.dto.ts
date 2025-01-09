@@ -76,7 +76,7 @@ export class PaginatingDTO {
 /**
  * @description 创建记录的DTO
  */
-export class CreatingDTO {
+export class DateDTO {
   @ApiProperty({
     type: Date,
     description: '创建日期',
@@ -96,4 +96,24 @@ export class CreatingDTO {
   @IsOptional()
   @IsString()
   createBy?: string;
+
+	@ApiProperty({
+    type: Date,
+    description: '更新日期',
+    default: new Date(),
+    required: false,
+  })
+  @IsOptional()
+  @IsDate()
+  updateTime?: Date;
+
+  @ApiProperty({
+    type: String,
+    description: '更新人',
+    default: 'superadmin',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  updateBy?: string;
 }

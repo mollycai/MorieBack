@@ -8,7 +8,7 @@ import {
 	IsString,
 	Length,
 } from 'class-validator';
-import { CreatingDTO, PaginatingDTO } from 'src/common/dto/params.dto';
+import { DateDTO, PaginatingDTO } from 'src/common/dto/params.dto';
 import { StatusEnum } from 'src/common/enum';
 
 export class ListRoleDto extends PaginatingDTO {
@@ -56,7 +56,7 @@ export class ListRoleDto extends PaginatingDTO {
   status?: string;
 }
 
-export class CreateRoleDto extends CreatingDTO {
+export class CreateRoleDto extends DateDTO {
   @ApiProperty({ required: true })
   @IsString()
   @Length(0, 30)
