@@ -1,11 +1,11 @@
 import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Post,
-  Put,
-  Query,
+	Body,
+	Controller,
+	Delete,
+	Get,
+	Post,
+	Put,
+	Query,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Permission } from 'src/common/decorators/permissions.decorator';
@@ -142,12 +142,12 @@ export class RoleController {
    * @param roleId
    * @returns
    */
-  @Get('/findMenuByRole')
+  @Get('/roleMenuTreeSelect')
   @ApiOperation({
     summary: '角色管理-根据角色查询菜单列表',
   })
   @Permission('system:menu:query')
-  findMenusByRoleId(@Query() query: { roleId: number }) {
-    return this.menuService.findMenusByRoleId(query);
+  roleMenuTreeSelect(@Query() query: { roleId: number }) {
+    return this.menuService.roleMenuTreeSelect(query);
   }
 }

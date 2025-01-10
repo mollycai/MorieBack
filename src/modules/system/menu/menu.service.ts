@@ -86,7 +86,7 @@ export class MenuService {
    * 根据角色id查询菜单
    * @param roleId
    */
-  async findMenusByRoleId({ roleId }) {
+  async roleMenuTreeSelect({ roleId }) {
     // 查询角色对应的菜单ID列表
     const menuWithRoleList = await this.prisma.sys_role_menu.findMany({
       where: {
@@ -100,20 +100,10 @@ export class MenuService {
     // 去重菜单ID
     const menuIds = uniq(menuWithRoleList.map((menu) => menu.menu_id));
 
-    if (menuIds.length === 0) {
-      return this.utilService.responseMessage({
-        data: [],
-      });
-    }
-
     // 查询菜单列表
     const menuList = await this.prisma.sys_menu.findMany({
       where: {
         del_flag: NOT_DELETE, // 未删除
-        status: 0, // 启用状态
-        menu_id: {
-          in: menuIds,
-        },
       },
       orderBy: {
         order_num: 'asc', // 按照排序字段升序
@@ -122,7 +112,10 @@ export class MenuService {
 
     // 构造树状结构
     return this.utilService.responseMessage({
-      data: convertFlatDataToTree(menuList, MENU_TYPE),
+      data: {
+        menu: convertFlatDataToTree(menuList, MENU_TYPE),
+        checkedKeys: menuIds,
+      },
     });
   }
 
@@ -152,7 +145,7 @@ export class MenuService {
       });
     }
 
-		if (isEmpty(menu_type)) {
+    if (isEmpty(menu_type)) {
       return this.utilService.responseMessage({
         msg: '请选择菜单类型',
         code: CODE_EMPTY,
@@ -187,7 +180,7 @@ export class MenuService {
       isFrame: is_frame,
       isCache: is_cache,
       menuType: menu_type,
-			menuKey: menu_key,
+      menuKey: menu_key,
       menuName: menu_name,
       updateTime: update_time = new Date(),
       updateBy: update_by = 'superadmin',
@@ -201,7 +194,7 @@ export class MenuService {
         order_num,
         is_frame,
         is_cache,
-				menu_key,
+        menu_key,
         menu_type,
         menu_name,
         update_time,
@@ -227,7 +220,7 @@ export class MenuService {
         del_flag: NOT_DELETE, // 未删除的子菜单
       },
     });
-		
+
     if (childMenus.length > 0) {
       // 如果存在子菜单，返回错误信息
       return this.utilService.responseMessage({
