@@ -7,7 +7,7 @@ export type MenuItem = {
   path?: string;
   name?: string; // 路由名字（保持唯一）
   component?: string; // 按需加载组件
-	redirect?: string; // 路由重定向
+  redirect?: string; // 路由重定向
   title?: string; // 菜单名称
   type?: string; // 菜单类型
   icon?: string; // 菜单图标
@@ -38,7 +38,8 @@ export type RouteItem = {
     title: string; // 菜单名称
     icon?: string; // 菜单图标
     isCache?: boolean; // 是否缓存
-		isFrame?: boolean; // 是否外链
+    isFrame?: boolean; // 是否外链
+    rank?: number; // 排序
   };
   /** 子路由配置项 */
   children?: RouteItem[];

@@ -10,6 +10,24 @@ import { MENU_TYPE, ROUTER_TYPE } from './menu.constants';
 import { MenuItem, RouteItem } from './menu.type';
 
 /**
+ * 递归清理空的 children和其他数据
+ * @param tree 树形结构
+ */
+const formateRoute = (tree: MenuItem[] | RouteItem[]): void => {
+  tree.forEach((node) => {
+    if (node.children && node.children.length === 0) {
+      delete node.children; // 删除空的 children
+    } else if (node.children) {
+      // 递归处理子节点
+      formateRoute(node.children);
+    }
+		// 删除id和parentId
+		delete node.id
+		delete node.parentId
+  });
+};
+
+/**
  * 将平坦列表转化为树形结构
  * @param flatData
  * @param root
@@ -47,13 +65,14 @@ export const convertFlatDataToTree = (
     if (currentNode) {
       if (parentNode) {
         parentNode.children.push(currentNode);
-        // @TODO 设置 redirect 到第一个子菜单（仅针对路由类型）
       } else {
         // 如果没有父节点，将当前节点作为根节点
         roots.push(currentNode);
       }
     }
   });
+	// 清理空的children
+	formateRoute(roots)
   return roots;
 };
 
@@ -107,6 +126,7 @@ const formatRouteNode = (menuNode: sys_menu): RouteItem => {
       icon: menuNode.icon,
       isCache: menuNode.is_cache === IS_CACHE,
       isFrame: isInnerLink(menuNode),
+      rank: menuNode.order_num,
     },
   };
 };

@@ -129,36 +129,36 @@ create table sys_menu (
 -- 插入一级菜单
 INSERT INTO sys_menu (menu_id, menu_name, menu_key, parent_id, order_num, path, component, menu_type, is_frame, visible, status, icon, create_by, create_time, remark)
 VALUES 
-(1, '系统管理', 'system', 0, 1, '/system', null, 'M', '1', '0', '0', 'system', 'superadmin', sysdate(), '一级菜单：系统管理'),
-(2, '系统监控', 'monitor', 0, 2, '/monitor', null, 'M', '1', '0', '0', 'monitor', 'superadmin', sysdate(), '一级菜单：系统监控'),
-(3, '系统工具', 'tools', 0, 3, '/tools', null, 'M', '1', '0', '0', 'tools', 'superadmin', sysdate(), '一级菜单：系统工具');
+(1, '系统管理', 'system', 0, 2, '/system', null, 'M', '1', '0', '0', 'system', 'superadmin', sysdate(), '一级菜单：系统管理'),
+(2, '系统监控', 'monitor', 0, 3, '/monitor', null, 'M', '1', '0', '0', 'monitor', 'superadmin', sysdate(), '一级菜单：系统监控'),
+(3, '系统工具', 'tools', 0, 4, '/tools', null, 'M', '1', '0', '0', 'tools', 'superadmin', sysdate(), '一级菜单：系统工具');
 
 -- 插入二级菜单（系统管理）
 INSERT INTO sys_menu (menu_id, menu_name, menu_key, parent_id, order_num, path, component, menu_type, is_frame, visible, status, perms, create_by, create_time, remark)
 VALUES 
-(101, '用户管理', 'user', 1, 1, '/system/user', 'system/user/index', 'C', '1', '0', '0', 'system:user:list', 'superadmin', sysdate(), '二级菜单：用户管理'),
-(102, '角色管理', 'role', 1, 2, '/system/role', 'system/role/index', 'C', '1', '0', '0', 'system:role:list', 'superadmin', sysdate(), '二级菜单：角色管理'),
-(103, '菜单管理', 'menu', 1, 3, '/system/menu', 'system/menu/index', 'C', '1', '0', '0', 'system:menu:list', 'superadmin', sysdate(), '二级菜单：菜单管理'),
-(104, '部门管理', 'dept', 1, 4, '/system/dept', 'system/dept/index', 'C', '1', '0', '0', 'system:dept:list', 'superadmin', sysdate(), '二级菜单：部门管理'),
-(105, '岗位管理', 'post', 1, 5, '/system/post', 'system/post/index', 'C', '1', '0', '0', 'system:post:list', 'superadmin', sysdate(), '二级菜单：岗位管理'),
-(106, '日志管理', 'log', 1, 6, '/system/log', '', 'C', '1', '0', '0', '', 'superadmin', sysdate(), '二级菜单：日志管理');
+(101, '用户管理', 'user', 1, 1, '/system/user/index', '/system/user/index', 'C', '1', '0', '0', 'system:user:list', 'superadmin', sysdate(), '二级菜单：用户管理'),
+(102, '角色管理', 'role', 1, 2, '/system/role/index', '/system/role/index', 'C', '1', '0', '0', 'system:role:list', 'superadmin', sysdate(), '二级菜单：角色管理'),
+(103, '菜单管理', 'menu', 1, 3, '/system/menu/index', '/system/menu/index', 'C', '1', '0', '0', 'system:menu:list', 'superadmin', sysdate(), '二级菜单：菜单管理'),
+(104, '部门管理', 'dept', 1, 4, '/system/dept/index', '/system/dept/index', 'C', '1', '0', '0', 'system:dept:list', 'superadmin', sysdate(), '二级菜单：部门管理'),
+(105, '岗位管理', 'post', 1, 5, '/system/post/index', '/system/post/index', 'C', '1', '0', '0', 'system:post:list', 'superadmin', sysdate(), '二级菜单：岗位管理'),
+(106, '日志管理', 'log', 1, 6, '/system/log', null, 'M', '1', '0', '0', '', 'superadmin', sysdate(), '二级目录：日志管理');
 
 -- 三级菜单
 INSERT INTO sys_menu (menu_id, menu_name, menu_key, parent_id, order_num, path, component, menu_type, is_frame, visible, status, perms, create_by, create_time, remark)
 VALUES 
-(601, '操作日志', 'operatelog', 106, 1, '/system/log/operate', 'system/log/operate/index', 'C', '1', '0', '0', 'system:operatelog:list', 'superadmin', sysdate(), '三级菜单：日志管理'),
-(602, '登录日志', 'loginlog', 106, 2, '/system/log/login', 'system/log/login/index', 'C', '1', '0', '0', 'system:loginlog:list', 'superadmin', sysdate(), '三级菜单：日志管理');
+(601, '操作日志', 'operatelog', 106, 1, '/system/log/operate', '/system/log/operate', 'C', '1', '0', '0', 'system:operatelog:list', 'superadmin', sysdate(), '三级菜单：日志管理'),
+(602, '登录日志', 'loginlog', 106, 2, '/system/log/login', '/system/log/login', 'C', '1', '0', '0', 'system:loginlog:list', 'superadmin', sysdate(), '三级菜单：日志管理');
 
 -- 插入二级菜单（系统监控）
 INSERT INTO sys_menu (menu_id, menu_name, menu_key, parent_id, order_num, path, component, menu_type, is_frame, visible, status, perms, create_by, create_time, remark)
 VALUES 
-(201, '在线用户', 'online', 2, 1, '/monitor/online', 'monitor/online/index', 'C', '1', '0', '0', 'monitor:online:list', 'superadmin', sysdate(), '二级菜单：在线用户'),
-(202, '数据监控', 'data', 2, 2, '/monitor/data', 'monitor/data/index', 'C', '1', '0', '0', 'monitor:data:list', 'superadmin', sysdate(), '二级菜单：数据监控');
+(201, '在线用户', 'online', 2, 1, '/monitor/online/index', '/monitor/online/index', 'C', '1', '0', '0', 'monitor:online:list', 'superadmin', sysdate(), '二级菜单：在线用户'),
+(202, '数据监控', 'data', 2, 2, '/monitor/data/index', '/monitor/data/index', 'C', '1', '0', '0', 'monitor:data:list', 'superadmin', sysdate(), '二级菜单：数据监控');
 
 -- 插入二级菜单（系统工具）
 INSERT INTO sys_menu (menu_id, menu_name, menu_key, parent_id, order_num, path, component, menu_type, is_frame, visible, status, perms, create_by, create_time, remark)
 VALUES 
-(301, '测试页面', 'test', 3, 1, '/tools/test', 'tools/test/index', 'C', '1', '0', '0', 'tool:test:list', 'superadmin', sysdate(), '二级菜单：测试页面');
+(301, '测试页面', 'test', 3, 1, '/tools/test/index', '/tools/test/index', 'C', '1', '0', '0', 'tool:test:list', 'superadmin', sysdate(), '二级菜单：测试页面');
 
 -- 插入按钮权限（系统管理 - 增删改查）
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, menu_type, is_frame, visible, status, perms, icon, create_by, create_time, remark)

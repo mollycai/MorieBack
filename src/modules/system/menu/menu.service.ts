@@ -11,7 +11,7 @@ import { IS_DELETE, NOT_DELETE } from 'src/common/constants/user.constant';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { UtilService } from 'src/shared/services/utils.service';
 import { RoleService } from '../role/role.service';
-import { MENU_TYPE } from './menu.constants';
+import { MENU_TYPE, ROUTER_TYPE } from './menu.constants';
 import { CreateMenuDto, MenuParamsDto, UpdateMenuDto } from './menu.dto';
 import { convertFlatDataToTree } from './menu.utils';
 
@@ -77,7 +77,7 @@ export class MenuService {
     });
     // 构造树
     return this.utilService.responseMessage({
-      data: convertFlatDataToTree(menuList, MENU_TYPE),
+      data: convertFlatDataToTree(menuList, ROUTER_TYPE),
     });
   }
 
