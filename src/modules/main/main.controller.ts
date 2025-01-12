@@ -66,33 +66,18 @@ export class MainController {
   })
   @Post('login')
   @Authorize()
-  async login(
+  login(
     @Body() dto: LoginInfoDto,
     @Req() req: FastifyRequest,
     @Headers('user-agent') ua: string,
   ): Promise<any> {
     // 登录获取token
-    const token = await this.mainService.getLoginSign(
+    return this.mainService.getLoginSign(
       dto.username,
       dto.password,
       this.utilService.getIpAddr(req),
       ua,
     );
-    // @TODO 返回的信息先写死
-    return {
-      success: true,
-      data: {
-        avatar: 'https://avatars.githubusercontent.com/u/99068236?v=4',
-        username: 'superadmin',
-        nickname: 'morie',
-        roles: ['superadmin'],
-        permissions: ['*:*:*'],
-        token: token,
-        accessToken: 'eyJhbGciOiJIUzUxMiJ9.superadmin',
-        refreshToken: 'eyJhbGciOiJIUzUxMiJ9.superadminRefresh',
-        expires: '2030/10/30 00:00:00',
-      },
-    };
   }
 
   /**

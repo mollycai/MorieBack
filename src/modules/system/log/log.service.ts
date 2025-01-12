@@ -8,11 +8,13 @@ export class LogService {
 	 * @param uid 
 	 * @param ip 
 	 */
-  async saveLoginLog(uid: number, ip: string): Promise<void> {
+  async saveLoginLog(uid: number, ip: string, ua: string): Promise<void> {
     await prisma.sys_logininfor.create({
       data: {
         ipaddr: ip,
         user_name: uid.toString(),
+				access_time: new Date(),
+				ua
       },
     });
   }

@@ -24,7 +24,7 @@ export class MainService {
     @InjectRedis() private readonly redisService: Redis,
     private readonly configService: ConfigService,
     private readonly logService: LogService,
-    private readonly util: UtilService,
+    private readonly utilService: UtilService,
   ) {}
 
   /**
@@ -46,7 +46,7 @@ export class MainService {
       img: `data:image/svg+xml;base64,${Buffer.from(svg.data).toString(
         'base64',
       )}`,
-      id: await this.util.generateUUID(),
+      id: await this.utilService.generateUUID(),
     };
     // 设置过期时间为12小时
     await this.redisService.set(
@@ -88,30 +88,31 @@ export class MainService {
     password: string,
     ipAddr: string,
     ua: string,
-  ): Promise<string> {
+  ): Promise<any> {
     // 查询用户
     const user = await this.userService.getUserByUsername(username);
     if (isEmpty(user)) {
       throw new ApiException(1003);
     }
     // 加密并对比用户名
-    const cryptoPwd = this.util.md5(`${password}`);
+    const cryptoPwd = this.utilService.md5(`${password}`);
     if (user.password !== cryptoPwd) {
       throw new ApiException(1003);
     }
-    // @Todo 获取权限菜单
-    // 根据用户id查询角色
     // 根据角色查询菜单权限
     // 暂时都设置为所有权限
     const perms = ['*:*:*'];
-    // @TODO 生成令牌
-    const expiresIn =
-      this.configService.get<string>('JWT_EXPIRES_IN') || '604800';
-    const jwtSign = this.jwtService.sign({
-      uid: parseInt(user.user_id.toString()),
-      pv: 1,
-      expiresIn: '604800',
-    });
+    const expiresIn = Number(this.configService.get<string>('JWT_EXPIRES_IN'));
+    const expiresAt = new Date(Date.now() + expiresIn * 1000).toISOString();
+    const jwtSign = this.jwtService.sign(
+      {
+        uid: parseInt(user.user_id.toString()),
+        pv: 1,
+      },
+      {
+        expiresIn,
+      },
+    );
     // redis 设置token缓存时间和缓存菜单
     await this.redisService
       .pipeline()
@@ -119,8 +120,19 @@ export class MainService {
       .set(`${USER_PERMS_KEY}:${user.user_id}`, JSON.stringify(perms))
       .exec();
     // @Todo redis 缓存菜单
+    await this.logService.saveLoginLog(Number(user.user_id), ipAddr, ua);
 
-    await this.logService.saveLoginLog(Number(user.user_id), ipAddr);
-    return jwtSign;
+    return this.utilService.responseMessage({
+      data: {
+        userId: user.user_id,
+        accessToken: jwtSign,
+        refreshToken: jwtSign,
+        username: user.user_name,
+        nickName: user.nick_name,
+        avatar: user.avatar,
+        expires: expiresAt,
+      },
+      msg: '登录成功',
+    });
   }
 }

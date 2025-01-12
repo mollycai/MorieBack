@@ -98,6 +98,7 @@ export class UtilService {
     }
     // 判断token是否与redis缓存的一致
     const redisToken = await this.getRedisTokenById(payload.uid);
+
     if (token !== redisToken) {
       throw new ApiException(1102);
     }

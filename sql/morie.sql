@@ -28,7 +28,7 @@ create table sys_user (
 -- ----------------------------
 -- 初始化-用户表数据
 -- ----------------------------
-insert into sys_user values(1,  null, 'superadmin', 'morie1', '00', 'ml@163.com', '15888888888', '0', '', '46f94c8de14fb36680850768ff1b7f2a', '0', '0', '127.0.0.1', sysdate(), 'admin', sysdate(), '', null, '超级管理员');
+insert into sys_user values(1,  null, 'superadmin', 'morie1', '00', 'ml@163.com', '15888888888', '0', 'https://avatars.githubusercontent.com/u/99068236?v=4', '46f94c8de14fb36680850768ff1b7f2a', '0', '0', '127.0.0.1', sysdate(), 'admin', sysdate(), '', null, '超级管理员');
 insert into sys_user values(2,  null, 'admin', 'morie2', '00', 'ml@google.com', '15777777777', '0', '', '46f94c8de14fb36680850768ff1b7f2a', '0', '0', '127.0.0.1', sysdate(), 'admin', sysdate(), '', null, '管理员');
 insert into sys_user values(3,  null, 'ml12345', 'morie123', '00', 'ml@qq.com', '15666666666', '0', '', '46f94c8de14fb36680850768ff1b7f2a', '0', '0', '127.0.0.1', sysdate(), 'admin', sysdate(), '', null, '测试员');
 
@@ -42,6 +42,7 @@ create table sys_logininfor (
   ipaddr         varchar(128)   default ''                comment '登录IP地址',
   status         char(1)        default '0'               comment '登录状态（0成功 1失败）',
   msg            varchar(255)   default ''                comment '提示信息',
+	ua             varchar(255)    default ''                comment '浏览器ua',
   access_time    datetime                                 comment '访问时间',
   primary key (info_id),
   key idx_sys_logininfor_s  (status),
@@ -129,9 +130,9 @@ create table sys_menu (
 -- 插入一级菜单
 INSERT INTO sys_menu (menu_id, menu_name, menu_key, parent_id, order_num, path, component, menu_type, is_frame, visible, status, icon, create_by, create_time, remark)
 VALUES 
-(1, '系统管理', 'system', 0, 2, '/system', null, 'M', '1', '0', '0', 'system', 'superadmin', sysdate(), '一级菜单：系统管理'),
-(2, '系统监控', 'monitor', 0, 3, '/monitor', null, 'M', '1', '0', '0', 'monitor', 'superadmin', sysdate(), '一级菜单：系统监控'),
-(3, '系统工具', 'tools', 0, 4, '/tools', null, 'M', '1', '0', '0', 'tools', 'superadmin', sysdate(), '一级菜单：系统工具');
+(1, '系统管理', 'system', 0, 2, '/system', null, 'M', '1', '0', '0', 'ep:menu', 'superadmin', sysdate(), '一级菜单：系统管理'),
+(2, '系统监控', 'monitor', 0, 3, '/monitor', null, 'M', '1', '0', '0', 'ep:platform', 'superadmin', sysdate(), '一级菜单：系统监控'),
+(3, '系统工具', 'tools', 0, 4, '/tools', null, 'M', '1', '0', '0', 'ep:tools', 'superadmin', sysdate(), '一级菜单：系统工具');
 
 -- 插入二级菜单（系统管理）
 INSERT INTO sys_menu (menu_id, menu_name, menu_key, parent_id, order_num, path, component, menu_type, is_frame, visible, status, perms, create_by, create_time, remark)

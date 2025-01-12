@@ -14,6 +14,7 @@ model sys_logininfor {
   ipaddr      String?   @default("") @db.VarChar(128)
   status      String?   @default("0") @db.Char(1)
   msg         String?   @default("") @db.VarChar(255)
+  ua          String?   @default("") @db.VarChar(50)
   access_time DateTime? @db.DateTime(0)
 
   @@index([access_time], map: "idx_sys_logininfor_lt")
