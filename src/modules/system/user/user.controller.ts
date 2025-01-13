@@ -1,20 +1,32 @@
-import { Body, Controller, Delete, Get, Post, Put, Query } from '@nestjs/common';
+import {
+	Body,
+	Controller,
+	Delete,
+	Get,
+	Post,
+	Put,
+	Query,
+} from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Permission } from 'src/common/decorators/permissions.decorator';
+import { RoleService } from '../role/role.service';
 import { CreateUserDto, ListUserDto, UpdateUserDto } from './user.dto';
 import { UserService } from './user.service';
 
 @ApiTags('用户模块')
 @Controller('system/user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly roleService: RoleService,
+  ) {}
 
   /**
    * @description: 用户列表
    */
   @Get()
   @ApiOperation({ summary: '用户管理-列表' })
-	@ApiBody({
+  @ApiBody({
     type: ListUserDto,
     required: true,
   })
@@ -28,7 +40,7 @@ export class UserController {
    */
   @Post()
   @ApiOperation({ summary: '用户管理-新增' })
-	@ApiBody({
+  @ApiBody({
     type: CreateUserDto,
     required: true,
   })
@@ -42,7 +54,7 @@ export class UserController {
    */
   @Put()
   @ApiOperation({ summary: '用户管理-编辑' })
-	@ApiBody({
+  @ApiBody({
     type: UpdateUserDto,
     required: true,
   })
@@ -56,26 +68,37 @@ export class UserController {
    */
   @Delete()
   @ApiOperation({ summary: '用户管理-删除' })
-	@ApiBody({
+  @ApiBody({
     type: Array<number>,
     required: true,
   })
   @Permission('system:user:delete')
-  remove(@Body() userIds: number[]) {
-    return this.userService.remove(userIds);
+  remove(@Body() body: { userIds: number[] }) {
+    console.log(body.userIds);
+    return this.userService.remove(body.userIds);
   }
-	
-	/**
+
+  /**
    * @description: 根据用户查询角色
    */
-  @Get()
+  @Get('/role')
   @ApiOperation({ summary: '用户管理-根据用户查询角色' })
-	@ApiQuery({
+  @ApiQuery({
     type: Array<number>,
     required: true,
   })
   @Permission('system:role:query')
-  findRoleIdByUserId(@Query() userId: number) {
-    return this.userService.findRoleIdByUserId(userId);
+  findRoleIdByUserId(@Query() params: { userId: number }) {
+    return this.userService.findRoleIdByUserId(params.userId);
+  }
+
+  /**
+   * @description: 查询角色选项
+   */
+  @Get('/roleOptions')
+  @ApiOperation({ summary: '用户管理-查询角色选项' })
+  @Permission('system:role:query')
+  getRoleOptions() {
+    return this.roleService.getRoleOptions();
   }
 }

@@ -38,7 +38,7 @@ export class UserService {
   async getUserByUsername(username: string): Promise<sys_user | undefined> {
     return await prisma.sys_user.findFirst({
       where: {
-        user_name: username,
+        userName: username,
         status: '0',
       },
     });
@@ -51,22 +51,23 @@ export class UserService {
    * @returns
    */
   async getUserInfo(uuid: number, ip?: string): Promise<Partial<sys_user>> {
-    const user: sys_user = await prisma.sys_user.findUnique({
-      where: {
-        user_id: uuid,
-      },
-    });
-    if (isEmpty(user)) {
+    const { userName, nickName, email, phoneNumber, remark, avatar }: sys_user =
+      await prisma.sys_user.findUnique({
+        where: {
+          userId: uuid,
+        },
+      });
+    if (isEmpty(userName)) {
       throw new ApiException(1004);
     }
     return {
-      user_name: user.user_name,
-      nick_name: user.nick_name,
-      email: user.email,
-      phonenumber: user.phonenumber,
-      remark: user.remark,
-      avatar: user.avatar,
-      login_ip: ip,
+      userName,
+      nickName,
+      email,
+      phoneNumber,
+      remark,
+      avatar,
+      loginIp: ip,
     };
   }
 
@@ -76,7 +77,14 @@ export class UserService {
    * @param relation 关系，决定查某角色下的用户还是某角色下未授权该角色的用户
    */
   async allocatedList(
-    { roleId, userName, pageNum, pageSize, params }: AllocatedListDto,
+    {
+      roleId,
+      userName,
+      pageNum,
+      pageSize,
+      beginTime,
+      endTime,
+    }: AllocatedListDto,
     relation = IN,
   ) {
     if (!roleId) {
@@ -89,15 +97,15 @@ export class UserService {
     // 通过 roleId 获取关联的 userId 列表
     const userMappings = await this.prisma.sys_user_role.findMany({
       where: {
-        role_id: +roleId,
+        roleId: +roleId,
       },
       select: {
-        user_id: true,
+        userId: true,
       },
     });
 
     // 提取 userIds
-    const userIds = userMappings.map((mapping) => mapping.user_id);
+    const userIds = userMappings.map((mapping) => mapping.userId);
     if (userIds.length === 0) {
       return this.utilService.responseMessage<CommonType.PageResponse>({
         data: {
@@ -108,18 +116,16 @@ export class UserService {
     }
 
     const where = {
-      user_id: {
+      userId: {
         [relation]: userIds,
       },
-      del_flag: NOT_DELETE,
+      delFlag: NOT_DELETE,
     };
     if (userName) {
-      where['user_name'] = { contains: userName, mode: 'insensitive' };
+      where['userName'] = { contains: userName };
     }
-    const beginTime = params?.beginTime;
-    const endTime = params?.endTime;
     if (beginTime && endTime) {
-      where['create_time'] = {
+      where['createTime'] = {
         gte: new Date(Number(beginTime)),
         lte: new Date(Number(endTime)),
       };
@@ -135,7 +141,7 @@ export class UserService {
       take,
       where,
       orderBy: [
-        { create_by: 'desc' }, // 按照createdAt字段降序
+        { createBy: 'desc' }, // 按照createdAt字段降序
       ],
     });
 
@@ -168,8 +174,8 @@ export class UserService {
     // 检查是否为用户的 common 权限
     const isCommonRole = await this.prisma.sys_role.findFirst({
       where: {
-        role_id: roleId,
-        role_key: 'common', // 假设 common 权限的 role_key 为 'common'
+        roleId: roleId,
+        roleKey: 'common', // 假设 common 权限的 role_key 为 'common'
       },
     });
 
@@ -183,8 +189,8 @@ export class UserService {
     // 删除 sys_user_role 表中对应的记录
     const result = await this.prisma.sys_user_role.deleteMany({
       where: {
-        role_id: roleId,
-        user_id: {
+        roleId: roleId,
+        userId: {
           in: userIds,
         },
       },
@@ -219,7 +225,7 @@ export class UserService {
     // 检查角色是否存在
     const role = await this.prisma.sys_role.findUnique({
       where: {
-        role_id: roleId,
+        roleId: roleId,
       },
     });
 
@@ -233,18 +239,18 @@ export class UserService {
     // 遍历用户列表，过滤已授权的用户
     const existingUserRoles = await this.prisma.sys_user_role.findMany({
       where: {
-        role_id: roleId,
-        user_id: {
+        roleId: roleId,
+        userId: {
           in: userIds,
         },
       },
       select: {
-        user_id: true,
+        userId: true,
       },
     });
 
     const alreadyAuthorizedUserIds = existingUserRoles.map(
-      (userRole) => userRole.user_id,
+      (userRole) => userRole.userId,
     );
     const newUserIds = userIds.filter(
       (userId) => !alreadyAuthorizedUserIds.includes(userId),
@@ -259,8 +265,8 @@ export class UserService {
 
     // 批量插入新的授权记录
     const insertData = newUserIds.map((userId) => ({
-      role_id: roleId,
-      user_id: userId,
+      roleId: roleId,
+      userId: userId,
     }));
 
     await this.prisma.sys_user_role.createMany({
@@ -275,32 +281,40 @@ export class UserService {
 
   /**
    * @description: 查询用户列表
-	 * @param ListUserDto
+   * @param ListUserDto
    */
   async findAll({
     userId,
     userName,
     status,
+    nickName,
+    phoneNumber,
     pageNum,
     pageSize,
-    params,
+    beginTime,
+    endTime,
   }: ListUserDto) {
     const where = {
-      del_flag: NOT_DELETE,
+      delFlag: NOT_DELETE,
     };
     if (userId) {
-      where['user_id'] = userId;
+      where['userId'] = userId;
     }
     if (status) {
       where['status'] = status;
     }
     if (userName) {
-      where['user_name'] = { contains: userName, mode: 'insensitive' };
+      where['userName'] = { contains: userName };
     }
-    const beginTime = params?.beginTime;
-    const endTime = params?.endTime;
+    if (nickName) {
+      where['nickName'] = { contains: nickName };
+    }
+    if (phoneNumber) {
+      where['phoneNumber'] = { contains: phoneNumber };
+    }
+
     if (beginTime && endTime) {
-      where['create_time'] = {
+      where['createTime'] = {
         gte: new Date(Number(beginTime)),
         lte: new Date(Number(endTime)),
       };
@@ -313,7 +327,7 @@ export class UserService {
       skip,
       take,
       where,
-      orderBy: [{ create_time: 'desc' }],
+      orderBy: [{ createTime: 'asc' }],
     });
 
     const total = await this.prisma.sys_user.count({ where });
@@ -330,26 +344,19 @@ export class UserService {
 
   /**
    * @description: 创建用户
-	 * @param createUserDto
+   * @param createUserDto
    */
   async create(createUserDto: CreateUserDto) {
     const {
-      deptId,
-      roleId,
+      roleIds,
       userName,
       nickName,
       password,
-      email,
-      phonenumber,
-      sex,
-      avatar,
-      status,
-      remark,
       createTime = new Date(),
       createBy = 'superadmin',
+      ...rest
     } = createUserDto;
     /**@TODO post和dept暂时不做 */
-    console.log(password, isEmpty(roleId));
     if (isEmpty(userName) || isEmpty(nickName)) {
       return this.utilService.responseMessage({
         msg: '用户名和昵称不能为空',
@@ -362,7 +369,7 @@ export class UserService {
         code: CODE_EMPTY,
       });
     }
-    if (!roleId) {
+    if (roleIds.length === 0) {
       return this.utilService.responseMessage({
         msg: '角色不能为空',
         code: CODE_EMPTY,
@@ -371,31 +378,30 @@ export class UserService {
 
     // DTO 字段与数据库字段映射
     const data = {
-      dept_id: deptId,
-      user_name: userName,
-      nick_name: nickName,
+      userName,
+      nickName,
       password: this.utilService.md5(`${password}`), // 加密
-      email,
-      phonenumber,
-      sex,
-      avatar,
-      status,
-      remark,
-      create_time: createTime,
-      create_by: createBy,
+      createTime,
+      createBy,
+      ...rest,
     };
 
     await this.prisma.$transaction(async (prisma) => {
-      const { user_id } = await prisma.sys_user.create({
+      const { userId } = await prisma.sys_user.create({
         data,
-        select: { user_id: true },
+        select: { userId: true },
       });
-      await prisma.sys_user_role.create({
-        data: {
-          user_id,
-          role_id: roleId,
-        },
-      });
+      // 注意不能用foreach，foreach不会等待异步操作完成，此处使用使用 Promise.all 并行插入所有角色
+      await Promise.all(
+        roleIds.map((roleId) =>
+          prisma.sys_user_role.create({
+            data: {
+              userId,
+              roleId,
+            },
+          }),
+        ),
+      );
     });
     return this.utilService.responseMessage({
       msg: MSG_CREATE,
@@ -404,23 +410,17 @@ export class UserService {
 
   /**
    * @description: 更新用户
-	 * @param updateUserDto
+   * @param updateUserDto
    */
   async update(updateUserDto: UpdateUserDto) {
     const {
       userId,
-      deptId,
-      roleId,
+      roleIds,
       userName,
       nickName,
-      email,
-      phonenumber,
-      sex,
-      avatar,
-      status,
-      remark,
       updateTime = new Date(),
       updateBy = 'superadmin',
+      ...rest
     } = updateUserDto;
     if (!userId) {
       return this.utilService.responseMessage({
@@ -434,47 +434,34 @@ export class UserService {
         code: CODE_EMPTY,
       });
     }
-    if (!roleId) {
+    if (roleIds.length === 0) {
       return this.utilService.responseMessage({
         msg: '角色不能为空',
         code: CODE_EMPTY,
       });
     }
     await this.prisma.$transaction(async (prisma) => {
-      // 先根据userId，查原来的roleId
-      const { role_id } = await prisma.sys_user_role.findFirst({
-        where: { user_id: userId },
+      // 删除原来的角色关系
+      await prisma.sys_user_role.deleteMany({
+        where: { userId },
       });
-
-      // 再更新对应userId新的roleId
-      await prisma.sys_user_role.update({
-        where: {
-          user_id_role_id: {
-            // 复合主键
-            role_id,
-            user_id: userId,
-          },
-        },
-        data: {
-          role_id: roleId,
-        },
+      // 插入新的角色关系
+      const userRoleData = roleIds.map((roleId) => ({
+        userId,
+        roleId,
+      }));
+      await prisma.sys_user_role.createMany({
+        data: userRoleData,
       });
-
       // 更新user信息
       await prisma.sys_user.update({
-        where: { user_id: userId },
+        where: { userId },
         data: {
-          dept_id: deptId,
-          user_name: userName,
-          nick_name: nickName,
-          email,
-          phonenumber,
-          sex,
-          avatar,
-          status,
-          remark,
-          update_time: updateTime,
-          update_by: updateBy,
+          userName,
+          nickName,
+          updateTime,
+          updateBy,
+          ...rest,
         },
       });
     });
@@ -486,23 +473,29 @@ export class UserService {
 
   /**
    * @description: 删除用户（软删除，将 del_flag 设置为 2）
-	 * @param userIds
+   * @param userIds
    */
   async remove(userIds: number[]) {
+    if (userIds.length === 0) {
+      return this.utilService.responseMessage({
+        code: CODE_EMPTY,
+        msg: '角色为空',
+      });
+    }
     await this.prisma.$transaction(async (prisma) => {
       await prisma.sys_user_role.deleteMany({
         where: {
-          user_id: { in: userIds },
+          userId: { in: userIds },
         },
       });
       await prisma.sys_user.updateMany({
         where: {
-          user_id: {
+          userId: {
             in: userIds,
           },
         },
         data: {
-          del_flag: IS_DELETE, // 暂时做成不删除，修改del_flag，但这或许会引发无用数据过的的问题，待讨论@TODO
+          delFlag: IS_DELETE, // 暂时做成不删除，修改del_flag，但这或许会引发无用数据过的的问题，待讨论@TODO
         },
       });
     });
@@ -517,11 +510,12 @@ export class UserService {
    * @param userId
    */
   async findRoleIdByUserId(userId: number) {
-    const { role_id } = await prisma.sys_user_role.findFirst({
-      where: { user_id: userId },
+    const userRole = await prisma.sys_user_role.findMany({
+      where: { userId: +userId },
     });
+    const roleIds = userRole.map((item) => item.roleId);
     return this.utilService.responseMessage({
-      data: role_id,
+      data: roleIds,
     });
   }
 }

@@ -106,7 +106,7 @@ export class MainService {
     const expiresAt = new Date(Date.now() + expiresIn * 1000).toISOString();
     const jwtSign = this.jwtService.sign(
       {
-        uid: parseInt(user.user_id.toString()),
+        uid: parseInt(user.userId.toString()),
         pv: 1,
       },
       {
@@ -116,19 +116,19 @@ export class MainService {
     // redis 设置token缓存时间和缓存菜单
     await this.redisService
       .pipeline()
-      .set(`${USER_TOKEN_KEY}:${user.user_id}`, jwtSign, 'EX', expiresIn)
-      .set(`${USER_PERMS_KEY}:${user.user_id}`, JSON.stringify(perms))
+      .set(`${USER_TOKEN_KEY}:${user.userId}`, jwtSign, 'EX', expiresIn)
+      .set(`${USER_PERMS_KEY}:${user.userId}`, JSON.stringify(perms))
       .exec();
     // @Todo redis 缓存菜单
-    await this.logService.saveLoginLog(Number(user.user_id), ipAddr, ua);
+    await this.logService.saveLoginLog(Number(user.userId), ipAddr, ua);
 
     return this.utilService.responseMessage({
       data: {
-        userId: user.user_id,
+        userId: user.userId,
         accessToken: jwtSign,
         refreshToken: jwtSign,
-        username: user.user_name,
-        nickName: user.nick_name,
+        username: user.userName,
+        nickName: user.nickName,
         avatar: user.avatar,
         expires: expiresAt,
       },

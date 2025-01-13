@@ -50,6 +50,16 @@ export class ListUserDto extends PaginatingDTO {
   @IsString()
   @IsEnum(['0', '1']) // 0: 禁用, 1: 启用
   status?: string;
+
+	@ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  nickName?: string;
+
+	@ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  phoneNumber?: string;
 }
 
 export class CreateUserDto extends DateDTO{
@@ -60,9 +70,8 @@ export class CreateUserDto extends DateDTO{
   deptId?: number;
 
 	@ApiProperty({ required: true })
-  @IsNumber()
-  @Length(0, 30)
-  roleId: number;
+	@IsArray()
+  roleIds: number[];
 
 	@ApiProperty({ required: true })
   @IsNumber()
@@ -94,7 +103,7 @@ export class CreateUserDto extends DateDTO{
   @IsString()
   @Optional()
   @Length(0, 30)
-  phonenumber?: string;
+  phoneNumber?: string;
 
 	@ApiProperty({ required: false })
   @IsString()

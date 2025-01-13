@@ -2,13 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { sys_role } from '@prisma/client';
 import { uniq } from 'lodash';
 import {
-	CODE_EMPTY,
-	CODE_EXIST,
-	CODE_NOT_EXIST,
-	CODE_SUCCESS,
-	MSG_CREATE,
-	MSG_DELETE,
-	MSG_UPDATE,
+  CODE_EMPTY,
+  CODE_EXIST,
+  CODE_NOT_EXIST,
+  CODE_SUCCESS,
+  MSG_CREATE,
+  MSG_DELETE,
+  MSG_UPDATE,
 } from 'src/common/constants/code.constants';
 import { IS_DELETE, NOT_DELETE } from 'src/common/constants/user.constant';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
@@ -32,29 +32,28 @@ export class RoleService {
     status,
     pageNum,
     pageSize,
-    params,
+    beginTime,
+    endTime,
   }: ListRoleDto) {
     // 条件判断
     const where = {
-      del_flag: NOT_DELETE,
+      delFlag: NOT_DELETE,
     };
     if (roleId) {
-      where['role_id'] = +roleId;
+      where['roleId'] = +roleId;
     }
     if (status) {
       where['status'] = status;
     }
     // 模糊查询
     if (roleName) {
-      where['role_name'] = { contains: roleName, mode: 'insensitive' };
+      where['roleName'] = { contains: roleName };
     }
     if (roleKey) {
-      where['role_key'] = { contains: roleKey, mode: 'insensitive' };
+      where['roleKey'] = { contains: roleKey };
     }
-    const beginTime = params?.beginTime;
-    const endTime = params?.endTime;
     if (beginTime && endTime) {
-      where['create_time'] = {
+      where['createTime'] = {
         gte: new Date(Number(beginTime)),
         lte: new Date(Number(endTime)),
       };
@@ -68,8 +67,8 @@ export class RoleService {
       take,
       where,
       orderBy: [
-        { role_sort: 'desc' }, // 按照sort字段升序
-        { create_by: 'desc' }, // 如果sort相同，再按照createdAt字段降序
+        { roleSort: 'desc' }, // 按照sort字段升序
+        { createBy: 'desc' }, // 如果sort相同，再按照createdAt字段降序
       ],
     });
     // 获取总条数
@@ -93,13 +92,13 @@ export class RoleService {
     const userWithRoleList = await this.prisma.sys_user_role.findMany({
       where: {
         // @TODO 这里强转下，前端传number到这里仍然变成string
-        user_id: +userId,
+        userId: +userId,
       },
       select: {
-        role_id: true,
+        roleId: true,
       },
     });
-    const roleIds = userWithRoleList.map((role) => role.role_id);
+    const roleIds = userWithRoleList.map((role) => role.roleId);
     return uniq(roleIds);
   }
 
@@ -113,21 +112,17 @@ export class RoleService {
       roleName,
       roleKey,
       roleSort,
-      status,
       menuIds,
-      dataScope,
-      remark,
-      menuCheckStrictly,
-      deptCheckStrictly,
       createTime = new Date(),
       createBy = 'superadmin',
+      ...rest
     } = createRoleDto;
 
     // 检查角色是否已经存在
     const existingRole = await this.prisma.sys_role.findFirst({
       where: {
-        OR: [{ role_name: roleName }, { role_key: roleKey }],
-        del_flag: NOT_DELETE,
+        OR: [{ roleName }, { roleKey }],
+        delFlag: NOT_DELETE,
       },
     });
     if (existingRole) {
@@ -142,24 +137,20 @@ export class RoleService {
       // 创建角色记录
       const createdRole = await prisma.sys_role.create({
         data: {
-          role_name: roleName,
-          role_key: roleKey,
-          role_sort: roleSort,
-          status,
-          data_scope: dataScope /** @TODO dataScope暂时不做*/,
-          remark,
-          menu_check_strictly: menuCheckStrictly,
-          dept_check_strictly: deptCheckStrictly,
-          create_time: createTime,
-          create_by: createBy,
+          roleName,
+          roleKey,
+          roleSort,
+          createTime,
+          createBy,
+          ...rest,
         },
       });
       // 为角色分配菜单（插入 sys_role_menu 表）
       if (menuIds && menuIds.length > 0) {
         await prisma.sys_role_menu.createMany({
           data: menuIds.map((menuId) => ({
-            role_id: createdRole.role_id,
-            menu_id: menuId,
+            roleId: createdRole.roleId,
+            menuId,
           })),
         });
       }
@@ -182,20 +173,15 @@ export class RoleService {
       roleId,
       roleName,
       roleKey,
-      menuIds,
       roleSort,
-      status,
-      dataScope,
-      remark,
-      menuCheckStrictly,
-      deptCheckStrictly,
+      menuIds,
       updateTime = new Date(),
       updateBy = 'superadmin',
     } = UpdateRoleDto;
 
     // 检查角色是否存在
     const existingRole = await this.prisma.sys_role.findUnique({
-      where: { role_id: roleId, del_flag: NOT_DELETE },
+      where: { roleId: roleId, delFlag: NOT_DELETE },
     });
 
     if (!existingRole) {
@@ -209,30 +195,26 @@ export class RoleService {
     await this.prisma.$transaction(async (prisma) => {
       // 更新角色基本信息
       const updated = await prisma.sys_role.update({
-        where: { role_id: roleId },
+        where: { roleId: roleId },
         data: {
-          role_name: roleName,
-          role_key: roleKey,
-          role_sort: roleSort,
-          status,
-          data_scope: dataScope,
-          remark,
-          menu_check_strictly: menuCheckStrictly,
-          dept_check_strictly: deptCheckStrictly,
-          update_time: updateTime,
-          update_by: updateBy,
+          roleId,
+          roleName,
+          roleKey,
+          roleSort,
+          updateTime,
+          updateBy,
         },
       });
       // 删除旧的菜单关联
       await prisma.sys_role_menu.deleteMany({
-        where: { role_id: roleId },
+        where: { roleId },
       });
       // 插入新的菜单关联
       if (menuIds && menuIds.length > 0) {
         await prisma.sys_role_menu.createMany({
           data: menuIds.map((menuId) => ({
-            role_id: roleId,
-            menu_id: menuId,
+            roleId,
+            menuId,
           })),
         });
       }
@@ -261,30 +243,47 @@ export class RoleService {
       // 删除 `sys_role_menu` 表中与角色相关的记录
       await prisma.sys_role_menu.deleteMany({
         where: {
-          role_id: { in: roleIds },
+          roleId: { in: roleIds },
         },
       });
       // 删除 `sys_user_role` 表中与角色相关的记录
       await prisma.sys_user_role.deleteMany({
         where: {
-          role_id: { in: roleIds },
+          roleId: { in: roleIds },
         },
       });
       // 删除 `sys_role` 表中角色记录
       await prisma.sys_role.updateMany({
         where: {
-          role_id: {
+          roleId: {
             in: roleIds,
           },
         },
         data: {
-          del_flag: IS_DELETE, // 设置为逻辑删除
+          delFlag: IS_DELETE, // 设置为逻辑删除
         },
       });
     });
 
     return this.utilService.responseMessage({
       msg: MSG_DELETE,
+    });
+  }
+
+  /**
+   * 获取角色选选项
+   */
+  async getRoleOptions() {
+    const roleList = await this.prisma.sys_role.findMany();
+    const roleOptions = roleList.map((role) => {
+      return {
+        roleId: role.roleId,
+        roleName: role.roleName,
+        status: role.status,
+      };
+    });
+    return this.utilService.responseMessage({
+      data: roleOptions,
     });
   }
 }

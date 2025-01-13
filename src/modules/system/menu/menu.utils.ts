@@ -45,7 +45,7 @@ export const convertFlatDataToTree = (
   flatData.forEach((node) => {
     if (
       type === MENU_TYPE ||
-      (type === ROUTER_TYPE && node.menu_type !== TYPE_BUTTON)
+      (type === ROUTER_TYPE && node.menuType !== TYPE_BUTTON)
     ) {
       const currentNode = {
         ...(type === MENU_TYPE ? formatMenuNode(node) : formatRouteNode(node)),
@@ -57,11 +57,11 @@ export const convertFlatDataToTree = (
   // 遍历所有节点，构建树形结构
   flatData.forEach((node) => {
     // 过滤掉 BUTTON_TYPE 节点
-    if (type === ROUTER_TYPE && node.menu_type === TYPE_BUTTON) {
+    if (type === ROUTER_TYPE && node.menuType === TYPE_BUTTON) {
       return;
     }
-    const currentNode = map[node.menu_id];
-    const parentNode = map[node.parent_id ?? rootId];
+    const currentNode = map[node.menuId];
+    const parentNode = map[node.parentId ?? rootId];
     if (currentNode) {
       if (parentNode) {
         parentNode.children.push(currentNode);
@@ -82,18 +82,18 @@ export const convertFlatDataToTree = (
  */
 const formatMenuNode = (menuNode: sys_menu): MenuItem => {
   return {
-    id: menuNode.menu_id,
-    parentId: menuNode.parent_id,
+    id: menuNode.menuId,
+    parentId: menuNode.parentId,
     path: menuNode.path,
-    name: menuNode.menu_key,
-    type: menuNode.menu_type,
-    title: menuNode.menu_name,
+    name: menuNode.menuKey,
+    type: menuNode.menuType,
+    title: menuNode.menuName,
     icon: menuNode.icon,
     component: menuNode.component,
-    rank: menuNode.order_num,
+    rank: menuNode.orderNum,
     status: menuNode.status,
-    createTime: menuNode.create_time,
-    isCache: menuNode.is_cache === IS_CACHE,
+    createTime: menuNode.createTime,
+    isCache: menuNode.isCache === IS_CACHE,
     isFrame: isInnerLink(menuNode),
     isShow: menuNode.visible === IS_VISIBLE,
     permission: menuNode.perms,
@@ -106,7 +106,7 @@ const formatMenuNode = (menuNode: sys_menu): MenuItem => {
  * @return
  */
 const isInnerLink = (menuNode: sys_menu): boolean => {
-  return menuNode.is_frame === NOT_FRAME && isURL(menuNode.path);
+  return menuNode.isFrame === NOT_FRAME && isURL(menuNode.path);
 };
 
 /**
@@ -116,17 +116,17 @@ const isInnerLink = (menuNode: sys_menu): boolean => {
  */
 const formatRouteNode = (menuNode: sys_menu): RouteItem => {
   return {
-    id: menuNode.menu_id,
-    parentId: menuNode.parent_id,
+    id: menuNode.menuId,
+    parentId: menuNode.parentId,
     path: menuNode.path,
-    name: menuNode.menu_key,
+    name: menuNode.menuKey,
     component: menuNode.component,
     meta: {
-      title: menuNode.menu_name,
+      title: menuNode.menuName,
       icon: menuNode.icon,
-      isCache: menuNode.is_cache === IS_CACHE,
+      isCache: menuNode.isCache === IS_CACHE,
       isFrame: isInnerLink(menuNode),
-      rank: menuNode.order_num,
+      rank: menuNode.orderNum,
     },
   };
 };
