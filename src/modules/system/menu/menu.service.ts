@@ -11,7 +11,7 @@ import { IS_DELETE, NOT_DELETE } from 'src/common/constants/user.constant';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { UtilService } from 'src/shared/services/utils.service';
 import { RoleService } from '../role/role.service';
-import { MENU_TYPE, ROUTER_TYPE } from './menu.constants';
+import { MENU_TYPE, ROUTER_TYPE, SELECTTREE_TYPE } from './menu.constants';
 import { CreateMenuDto, MenuParamsDto, UpdateMenuDto } from './menu.dto';
 import { convertFlatDataToTree } from './menu.utils';
 
@@ -82,6 +82,17 @@ export class MenuService {
   }
 
   /**
+   * @description 查询所有菜单
+   */
+  async menuTreeSelect() {
+    // 查询所有菜单
+    const menuList = await this.prisma.sys_menu.findMany();
+    return this.utilService.responseMessage({
+      data: convertFlatDataToTree(menuList, SELECTTREE_TYPE),
+    });
+  }
+
+  /**
    * @TODO 再添加个checkedKeys列表
    * 根据角色id查询菜单
    * @param roleId
@@ -113,7 +124,7 @@ export class MenuService {
     // 构造树状结构
     return this.utilService.responseMessage({
       data: {
-        menu: convertFlatDataToTree(menuList, MENU_TYPE),
+        menu: convertFlatDataToTree(menuList, SELECTTREE_TYPE),
         checkedKeys: menuIds,
       },
     });
@@ -178,7 +189,7 @@ export class MenuService {
       ...rest
     } = updateMenuDto;
 
-		if (isEmpty(menuName) || isEmpty(menuKey)) {
+    if (isEmpty(menuName) || isEmpty(menuKey)) {
       return this.utilService.responseMessage({
         msg: '请输入菜单名和菜单标识',
         code: CODE_EMPTY,

@@ -81,8 +81,8 @@ export class RoleController {
     required: true,
   })
   @Permission('system:role:remove')
-  remove(@Body() ids: number[]) {
-    return this.roleService.remove(ids);
+  remove(@Body() body: { roleIds: number[] }) {
+    return this.roleService.remove(body.roleIds);
   }
 
   @ApiOperation({
@@ -149,5 +149,19 @@ export class RoleController {
   @Permission('system:menu:query')
   roleMenuTreeSelect(@Query() query: { roleId: number }) {
     return this.menuService.roleMenuTreeSelect(query);
+  }
+
+  /**
+   * @description: 根据角色查询菜单列表
+   * @param roleId
+   * @returns
+   */
+  @Get('/menuTreeSelect')
+  @ApiOperation({
+    summary: '角色管理-根据角色查询菜单列表',
+  })
+  @Permission('system:menu:query')
+  menuTreeSelect() {
+    return this.menuService.menuTreeSelect();
   }
 }

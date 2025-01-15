@@ -6,24 +6,26 @@ import {
 	NOT_FRAME,
 	TYPE_BUTTON,
 } from 'src/common/constants/user.constant';
-import { MENU_TYPE, ROUTER_TYPE } from './menu.constants';
-import { MenuItem, RouteItem } from './menu.type';
+import { MENU_TYPE, ROUTER_TYPE, SELECTTREE_TYPE } from './menu.constants';
+import { MenuItem, RouteItem, SelectTreeItem } from './menu.type';
 
 /**
  * 递归清理空的 children和其他数据
  * @param tree 树形结构
  */
-const formateRoute = (tree: MenuItem[] | RouteItem[]): void => {
+const formateRoute = (tree: MenuItem[] | RouteItem[], type: string): void => {
   tree.forEach((node) => {
     if (node.children && node.children.length === 0) {
       delete node.children; // 删除空的 children
     } else if (node.children) {
       // 递归处理子节点
-      formateRoute(node.children);
+      formateRoute(node.children, type);
     }
-		// 删除id和parentId
-		delete node.id
-		delete node.parentId
+    // 删除id和parentId
+    if (type === MENU_TYPE || type === ROUTER_TYPE) {
+      delete node.id;
+      delete node.parentId;
+    }
   });
 };
 
@@ -36,19 +38,24 @@ export const convertFlatDataToTree = (
   flatData: sys_menu[],
   type: string,
   rootId?: any,
-): MenuItem[] | RouteItem[] => {
+): MenuItem[] | RouteItem[] | SelectTreeItem[] => {
   // 缓存各级节点的图
-  const map: Record<any, MenuItem | RouteItem> = {};
+  const map: Record<any, MenuItem | RouteItem | SelectTreeItem> = {};
   // 存放树形结构
-  const roots: MenuItem[] | RouteItem[] = [];
+  const roots: MenuItem[] | RouteItem[] | SelectTreeItem[] = [];
   // 将所有节点添加到map中，以id作为key，并进行格式化
   flatData.forEach((node) => {
     if (
       type === MENU_TYPE ||
+      type === SELECTTREE_TYPE ||
       (type === ROUTER_TYPE && node.menuType !== TYPE_BUTTON)
     ) {
       const currentNode = {
-        ...(type === MENU_TYPE ? formatMenuNode(node) : formatRouteNode(node)),
+        ...(type === MENU_TYPE
+          ? formatMenuNode(node)
+          : type === ROUTER_TYPE
+            ? formatRouteNode(node)
+            : formatSelectTreeNdoe(node)),
         children: [], // 初始化 children
       };
       map[currentNode.id] = currentNode;
@@ -64,16 +71,26 @@ export const convertFlatDataToTree = (
     const parentNode = map[node.parentId ?? rootId];
     if (currentNode) {
       if (parentNode) {
-        parentNode.children.push(currentNode);
+        (parentNode.children as (MenuItem | RouteItem | SelectTreeItem)[]).push(
+          currentNode,
+        );
       } else {
         // 如果没有父节点，将当前节点作为根节点
-        roots.push(currentNode);
+        (roots as (MenuItem | RouteItem | SelectTreeItem)[]).push(currentNode);
       }
     }
   });
-	// 清理空的children
-	formateRoute(roots)
+  // 清理空的children
+  formateRoute(roots, type);
   return roots;
+};
+
+const formatSelectTreeNdoe = (menuNode: sys_menu): SelectTreeItem => {
+  return {
+    id: menuNode.menuId,
+    parentId: menuNode.parentId,
+    label: menuNode.menuName,
+  };
 };
 
 /**

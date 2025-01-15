@@ -44,3 +44,13 @@ export type RouteItem = {
   /** 子路由配置项 */
   children?: RouteItem[];
 };
+
+/**
+ * @description: selectTree项
+ */
+export type SelectTreeItem = {
+  id: number;
+  parentId?: number;
+  children?: SelectTreeItem[];
+  label: string;
+};

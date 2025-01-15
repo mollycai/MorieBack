@@ -74,7 +74,6 @@ export class UserController {
   })
   @Permission('system:user:delete')
   remove(@Body() body: { userIds: number[] }) {
-    console.log(body.userIds);
     return this.userService.remove(body.userIds);
   }
 

@@ -78,7 +78,7 @@ export class CreateRoleDto extends DateDTO {
   @ApiProperty({ required: true })
   @IsOptional()
   @IsNumber()
-  roleSort?: number;
+  roleSort: number;
 
   @ApiProperty({ required: true })
   @IsOptional()

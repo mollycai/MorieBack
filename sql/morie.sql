@@ -186,7 +186,13 @@ VALUES
 (1041, '部门新增', 104, 1, null, null, 'F', '1', '0', '0', 'system:dept:add', null, 'superadmin', sysdate(), '按钮：部门新增'),
 (1042, '部门编辑', 104, 2, null, null, 'F', '1', '0', '0', 'system:dept:edit', null, 'superadmin', sysdate(), '按钮：部门编辑'),
 (1043, '部门删除', 104, 3, null, null, 'F', '1', '0', '0', 'system:dept:remove', null, 'superadmin', sysdate(),'按钮：部门删除'),
-(1044, '部门查看', 104, 4, null, null, 'F', '1', '0', '0', 'system:dept:query', null, 'superadmin', sysdate(), '按钮：部门查看');
+(1044, '部门查看', 104, 4, null, null, 'F', '1', '0', '0', 'system:dept:query', null, 'superadmin', sysdate(), '按钮：部门查看'),
+
+-- 岗位管理按钮
+(1051, '岗位新增', 105, 1, null, null, 'F', '1', '0', '0', 'system:post:add', null, 'superadmin', sysdate(), '按钮：岗位新增'),
+(1052, '岗位编辑', 105, 2, null, null, 'F', '1', '0', '0', 'system:post:edit', null, 'superadmin', sysdate(), '按钮：岗位编辑'),
+(1053, '岗位删除', 105, 3, null, null, 'F', '1', '0', '0', 'system:post:remove', null, 'superadmin', sysdate(),'按钮：岗位删除'),
+(1054, '岗位查看', 105, 4, null, null, 'F', '1', '0', '0', 'system:post:query', null, 'superadmin', sysdate(), '按钮：岗位查看');
 
 -- ----------------------------
 -- 6.角色和菜单关联
@@ -239,6 +245,10 @@ INSERT INTO sys_role_menu VALUES (1, 1041); -- 部门新增
 INSERT INTO sys_role_menu VALUES (1, 1042); -- 部门编辑
 INSERT INTO sys_role_menu VALUES (1, 1043); -- 部门删除
 INSERT INTO sys_role_menu VALUES (1, 1044); -- 部门查看
+INSERT INTO sys_role_menu VALUES (1, 1051); -- 岗位新增
+INSERT INTO sys_role_menu VALUES (1, 1052); -- 岗位编辑
+INSERT INTO sys_role_menu VALUES (1, 1053); -- 岗位删除
+INSERT INTO sys_role_menu VALUES (1, 1054); -- 岗位查看
 
 -- 管理员
 -- 一级菜单
