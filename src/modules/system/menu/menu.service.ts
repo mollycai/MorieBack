@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { isEmpty, uniq } from 'lodash';
 import {
-	CODE_EMPTY,
-	CODE_EXIST,
-	MSG_CREATE,
-	MSG_DELETE,
-	MSG_UPDATE,
+  CODE_EMPTY,
+  CODE_EXIST,
+  MSG_CREATE,
+  MSG_DELETE,
+  MSG_UPDATE,
 } from 'src/common/constants/code.constants';
 import { IS_DELETE, NOT_DELETE } from 'src/common/constants/user.constant';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
@@ -38,6 +38,9 @@ export class MenuService {
     }
     const menuList = await this.prisma.sys_menu.findMany({
       where,
+      orderBy: {
+        orderNum: 'asc',
+      },
     });
     return this.utilService.responseMessage({
       data: convertFlatDataToTree(menuList, MENU_TYPE),
@@ -146,9 +149,9 @@ export class MenuService {
       ...rest
     } = createMenuDto;
 
-    if (isEmpty(menuName) || isEmpty(menuKey)) {
+    if (isEmpty(menuName)) {
       return this.utilService.responseMessage({
-        msg: '请输入菜单名和菜单标识',
+        msg: '请输入菜单名',
         code: CODE_EMPTY,
       });
     }
@@ -160,16 +163,27 @@ export class MenuService {
       });
     }
 
-    await this.prisma.sys_menu.create({
-      data: {
-        parentId: parentId || 0,
-        menuName,
-        menuKey,
-        menuType,
-        createTime,
-        createBy,
-        ...rest, // 其他字段直接映射
-      },
+    // 注意在创建菜单的同时，也把权限添加到超级管理员的角色中
+    await this.prisma.$transaction(async (prisma) => {
+      // 创建菜单
+      const { menuId } = await prisma.sys_menu.create({
+        data: {
+          parentId: parentId || 0,
+          menuName,
+          menuKey,
+          menuType,
+          createTime,
+          createBy,
+          ...rest, // 其他字段直接映射
+        },
+      });
+      // 添加到sys_role_user中
+      await prisma.sys_role_menu.create({
+        data: {
+          roleId: 1, // 超级管理员
+          menuId: menuId,
+        },
+      });
     });
 
     return this.utilService.responseMessage({
@@ -189,9 +203,9 @@ export class MenuService {
       ...rest
     } = updateMenuDto;
 
-    if (isEmpty(menuName) || isEmpty(menuKey)) {
+    if (isEmpty(menuName)) {
       return this.utilService.responseMessage({
-        msg: '请输入菜单名和菜单标识',
+        msg: '请输入菜单名',
         code: CODE_EMPTY,
       });
     }
@@ -233,7 +247,6 @@ export class MenuService {
         delFlag: NOT_DELETE, // 未删除的子菜单
       },
     });
-
     if (childMenus.length > 0) {
       // 如果存在子菜单，返回错误信息
       return this.utilService.responseMessage({

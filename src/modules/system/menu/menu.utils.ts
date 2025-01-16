@@ -21,9 +21,8 @@ const formateRoute = (tree: MenuItem[] | RouteItem[], type: string): void => {
       // 递归处理子节点
       formateRoute(node.children, type);
     }
-    // 删除id和parentId
-    if (type === MENU_TYPE || type === ROUTER_TYPE) {
-      delete node.id;
+    // 删除parentId
+    if (type === ROUTER_TYPE) {
       delete node.parentId;
     }
   });

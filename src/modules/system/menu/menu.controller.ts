@@ -64,7 +64,7 @@ export class MenuController {
     type: Object,
     required: true,
   })
-  remove(@Body() id: { menuId: number }) {
-    return this.menuService.remove(id.menuId);
+  remove(@Body() body: { menuId: number }) {
+    return this.menuService.remove(body.menuId);
   }
 }

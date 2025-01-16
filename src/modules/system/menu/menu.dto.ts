@@ -29,9 +29,10 @@ export class CreateMenuDto extends DateDTO {
   menuName: string;
 
   @ApiProperty({ required: false })
+	@IsOptional()
   @IsString()
   @Length(0, 50)
-  menuKey: string;
+  menuKey?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
