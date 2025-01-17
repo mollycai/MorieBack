@@ -3,18 +3,20 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Redis } from 'ioredis';
-import { isEmpty } from 'lodash';
+import { isEmpty, uniq } from 'lodash';
 import { UtilService } from 'src/shared/services/utils.service';
 import * as svgCaptcha from 'svg-captcha';
 import {
-	CAPTCHA_IMG_KEY,
-	USER_PERMS_KEY,
-	USER_TOKEN_KEY,
+  CAPTCHA_IMG_KEY,
+  USER_PERMS_KEY,
+  USER_TOKEN_KEY,
 } from '../../common/constants/redis.constans';
 import { ApiException } from '../../common/exceptions/api.exception';
 import { LogService } from '../system/log/log.service';
 import { UserService } from '../system/user/user.service';
 import { ImageCaptcha, ImageCaptchaDto } from './main.dto';
+import { RoleService } from '../system/role/role.service';
+import { MenuService } from '../system/menu/menu.service';
 
 @Injectable()
 export class MainService {
@@ -25,6 +27,8 @@ export class MainService {
     private readonly configService: ConfigService,
     private readonly logService: LogService,
     private readonly utilService: UtilService,
+    private readonly roleService: RoleService,
+    private readonly menuService: MenuService,
   ) {}
 
   /**
@@ -99,11 +103,23 @@ export class MainService {
     if (user.password !== cryptoPwd) {
       throw new ApiException(1003);
     }
-    // 根据角色查询菜单权限
-    // 暂时都设置为所有权限
-    const perms = ['*:*:*'];
+    // 根据用户查询角色
+    const roleIds = await this.roleService.findRoleByUserId(user.userId);
+		const roleKeys = await this.roleService.findRoleKeyByRoleId(roleIds)
+
+    let perms = [];
+    if (roleIds.includes(1)) {
+      // 超级管理员
+      perms = ['*:*:*'];
+    } else {
+      // 根据角色查询菜单权限
+      const permsList = await this.menuService.findPermsByRoleId(roleIds);
+			perms = uniq(permsList);
+    }
+
+    // 生成token
     const expiresIn = Number(this.configService.get<string>('JWT_EXPIRES_IN'));
-    const expiresAt = new Date(Date.now() + expiresIn * 1000).toISOString();
+    const expiresAt = new Date(Date.now() + expiresIn * 1000);
     const jwtSign = this.jwtService.sign(
       {
         uid: parseInt(user.userId.toString()),
@@ -131,6 +147,8 @@ export class MainService {
         nickName: user.nickName,
         avatar: user.avatar,
         expires: expiresAt,
+        roles: roleKeys,
+				permissions: perms
       },
       msg: '登录成功',
     });

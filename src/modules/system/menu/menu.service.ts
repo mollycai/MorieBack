@@ -96,7 +96,6 @@ export class MenuService {
   }
 
   /**
-   * @TODO 再添加个checkedKeys列表
    * 根据角色id查询菜单
    * @param roleId
    */
@@ -268,5 +267,36 @@ export class MenuService {
     return this.utilService.responseMessage({
       msg: MSG_DELETE,
     });
+  }
+
+  async findPermsByRoleId(roleIds: Array<number>) {
+    // 查询角色对应的菜单ID列表
+    const menus = await this.prisma.sys_role_menu.findMany({
+      where: {
+        roleId: {
+					in: roleIds,
+				},
+      },
+      select: {
+        menuId: true,
+      },
+    });
+    // 去重菜单ID
+    const menuIds = uniq(menus.map((menu) => menu.menuId));
+    // 查询权限列表
+    const perms = await this.prisma.sys_menu.findMany({
+      where: {
+        delFlag: NOT_DELETE,
+        status: 0,
+        menuId: {
+          in: menuIds,
+        },
+      },
+			select: {
+				perms: true,
+			}
+    });
+		const permissions = perms.map((permission) => permission.perms).filter(perms => !isEmpty(perms))
+		return permissions;
   }
 }

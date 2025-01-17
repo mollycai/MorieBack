@@ -169,12 +169,16 @@ VALUES
 (1002, '用户编辑', 101, 2, null, null, 'F', '1', '0', '0', 'system:user:edit', null, 'superadmin', sysdate(), '按钮：用户编辑'),
 (1003, '用户删除', 101, 3, null, null, 'F', '1', '0', '0', 'system:user:remove', null, 'superadmin', sysdate(), '按钮：用户删除'),
 (1004, '用户查看', 101, 4, null, null, 'F', '1', '0', '0', 'system:user:query', null, 'superadmin', sysdate(), '按钮：用户查看'),
+(1005, '用户导出', 101, 4, null, null, 'F', '1', '0', '0', 'system:user:export', null, 'superadmin', sysdate(), '按钮：用户导出'),
+(1006, '用户导入', 101, 4, null, null, 'F', '1', '0', '0', 'system:user:import', null, 'superadmin', sysdate(), '按钮：用户导入'),
+(1007, '重置密码', 101, 4, null, null, 'F', '1', '0', '0', 'system:user:resetpwd', null, 'superadmin', sysdate(), '按钮：重置密码'),
 
 -- 角色管理按钮
 (1021, '角色新增', 102, 1, null, null, 'F', '1', '0', '0', 'system:role:add', null, 'superadmin', sysdate(), '按钮：角色新增'),
 (1022, '角色编辑', 102, 2, null, null, 'F', '1', '0', '0', 'system:role:edit', null, 'superadmin', sysdate(), '按钮：角色编辑'),
 (1023, '角色删除', 102, 3, null, null, 'F', '1', '0', '0', 'system:role:remove', null, 'superadmin', sysdate(), '按钮：角色删除'),
 (1024, '角色查看', 102, 4, null, null, 'F', '1', '0', '0', 'system:role:query', null, 'superadmin', sysdate(), '按钮：角色查看'),
+(1025, '角色导出', 102, 4, null, null, 'F', '1', '0', '0', 'system:role:export', null, 'superadmin', sysdate(), '按钮：角色导出'),
 
 -- 菜单管理按钮
 (1031, '菜单新增', 103, 1, null, null, 'F', '1', '0', '0', 'system:menu:add', null, 'superadmin', sysdate(), '按钮：菜单新增'),
@@ -218,6 +222,7 @@ INSERT INTO sys_role_menu VALUES (1, 104); -- 部门管理
 INSERT INTO sys_role_menu VALUES (1, 105); -- 岗位管理
 INSERT INTO sys_role_menu VALUES (1, 106); -- 日志管理
 
+
 INSERT INTO sys_role_menu VALUES (1, 601); -- 操作日志管理
 INSERT INTO sys_role_menu VALUES (1, 602); -- 登录日志管理
 
@@ -233,10 +238,14 @@ INSERT INTO sys_role_menu VALUES (1, 1001); -- 用户新增
 INSERT INTO sys_role_menu VALUES (1, 1002); -- 用户编辑
 INSERT INTO sys_role_menu VALUES (1, 1003); -- 用户删除
 INSERT INTO sys_role_menu VALUES (1, 1004); -- 用户查看
+INSERT INTO sys_role_menu VALUES (1, 1005); -- 用户导出
+INSERT INTO sys_role_menu VALUES (1, 1006); -- 用户导入
+INSERT INTO sys_role_menu VALUES (1, 1007); -- 重置密码
 INSERT INTO sys_role_menu VALUES (1, 1021); -- 角色新增
 INSERT INTO sys_role_menu VALUES (1, 1022); -- 角色编辑
 INSERT INTO sys_role_menu VALUES (1, 1023); -- 角色删除
 INSERT INTO sys_role_menu VALUES (1, 1024); -- 角色查看
+INSERT INTO sys_role_menu VALUES (1, 1025); -- 角色导入
 INSERT INTO sys_role_menu VALUES (1, 1031); -- 菜单新增
 INSERT INTO sys_role_menu VALUES (1, 1032); -- 菜单编辑
 INSERT INTO sys_role_menu VALUES (1, 1033); -- 菜单删除
@@ -258,6 +267,7 @@ INSERT INTO sys_role_menu VALUES (2, 3); -- 系统工具
 -- 系统管理子菜单
 INSERT INTO sys_role_menu VALUES (2, 101); -- 用户管理
 INSERT INTO sys_role_menu VALUES (2, 102); -- 角色管理
+INSERT INTO sys_role_menu VALUES (2, 103); -- 菜单管理
 INSERT INTO sys_role_menu VALUES (2, 104); -- 部门管理
 INSERT INTO sys_role_menu VALUES (2, 105); -- 岗位管理
 
@@ -269,10 +279,9 @@ INSERT INTO sys_role_menu VALUES (2, 1001); -- 用户新增
 INSERT INTO sys_role_menu VALUES (2, 1002); -- 用户编辑
 INSERT INTO sys_role_menu VALUES (2, 1003); -- 用户删除
 INSERT INTO sys_role_menu VALUES (2, 1004); -- 用户查看
-INSERT INTO sys_role_menu VALUES (2, 1021); -- 角色新增
-INSERT INTO sys_role_menu VALUES (2, 1022); -- 角色编辑
-INSERT INTO sys_role_menu VALUES (2, 1023); -- 角色删除
+INSERT INTO sys_role_menu VALUES (2, 1007); -- 重置密码
 INSERT INTO sys_role_menu VALUES (2, 1024); -- 角色查看
+INSERT INTO sys_role_menu VALUES (2, 1034); -- 菜单查看
 INSERT INTO sys_role_menu VALUES (2, 1041); -- 部门新增
 INSERT INTO sys_role_menu VALUES (2, 1042); -- 部门编辑
 INSERT INTO sys_role_menu VALUES (2, 1043); -- 部门删除

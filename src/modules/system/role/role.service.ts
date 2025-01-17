@@ -2,13 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { sys_role } from '@prisma/client';
 import { uniq } from 'lodash';
 import {
-	CODE_EMPTY,
-	CODE_EXIST,
-	CODE_NOT_EXIST,
-	CODE_SUCCESS,
-	MSG_CREATE,
-	MSG_DELETE,
-	MSG_UPDATE,
+  CODE_EMPTY,
+  CODE_EXIST,
+  CODE_NOT_EXIST,
+  CODE_SUCCESS,
+  MSG_CREATE,
+  MSG_DELETE,
+  MSG_UPDATE,
 } from 'src/common/constants/code.constants';
 import { IS_DELETE, NOT_DELETE } from 'src/common/constants/user.constant';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
@@ -81,6 +81,21 @@ export class RoleService {
         pageSize: take,
       },
     });
+  }
+
+  async findRoleKeyByRoleId(roleIds: Array<number>) {
+    const roles = await this.prisma.sys_role.findMany({
+      where: {
+        roleId: {
+          in: roleIds,
+        },
+      },
+      select: {
+        roleKey: true,
+      },
+    });
+    const roleNameList = roles.map((role) => role.roleKey);
+    return roleNameList;
   }
 
   /**
