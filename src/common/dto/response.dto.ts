@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 import { CODE_SUCCESS } from '../constants/code.constants';
-import { MsgEnum } from '../enum';
+import { MsgEnum } from '../enum/code.enum';
 
 export class ResponseDto {
   @ApiProperty({

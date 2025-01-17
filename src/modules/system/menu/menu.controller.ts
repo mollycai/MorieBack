@@ -38,6 +38,7 @@ export class MenuController {
     type: CreateMenuDto,
     required: true,
   })
+	@Permission('system:menu:create')
   create(@Body() createMenuDto: CreateMenuDto) {
     return this.menuService.create(createMenuDto);
   }
@@ -51,6 +52,7 @@ export class MenuController {
     type: UpdateMenuDto,
     required: true,
   })
+	@Permission('system:menu:edit')
   update(@Body() updateMenuDto: UpdateMenuDto) {
     return this.menuService.update(updateMenuDto);
   }
@@ -64,6 +66,7 @@ export class MenuController {
     type: Object,
     required: true,
   })
+	@Permission('system:menu:remove')
   remove(@Body() body: { menuId: number }) {
     return this.menuService.remove(body.menuId);
   }

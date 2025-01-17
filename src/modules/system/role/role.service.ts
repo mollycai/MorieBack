@@ -10,10 +10,10 @@ import {
   MSG_DELETE,
   MSG_UPDATE,
 } from 'src/common/constants/code.constants';
-import { IS_DELETE, NOT_DELETE } from 'src/common/constants/user.constant';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { UtilService } from 'src/shared/services/utils.service';
 import { CreateRoleDto, ListRoleDto, UpdateRoleDto } from './role.dto';
+import { DeleteEnum } from 'src/common/enum/data.enum';
 
 @Injectable()
 export class RoleService {
@@ -37,7 +37,7 @@ export class RoleService {
   }: ListRoleDto) {
     // 条件判断
     const where = {
-      delFlag: NOT_DELETE,
+      delFlag: DeleteEnum.EXIST,
     };
     if (roleId) {
       where['roleId'] = +roleId;
@@ -137,7 +137,7 @@ export class RoleService {
     const existingRole = await this.prisma.sys_role.findFirst({
       where: {
         OR: [{ roleName }, { roleKey }],
-        delFlag: NOT_DELETE,
+        delFlag: DeleteEnum.EXIST,
       },
     });
     if (existingRole) {
@@ -196,7 +196,7 @@ export class RoleService {
 
     // 检查角色是否存在
     const existingRole = await this.prisma.sys_role.findUnique({
-      where: { roleId: roleId, delFlag: NOT_DELETE },
+      where: { roleId: roleId, delFlag: DeleteEnum.EXIST },
     });
 
     if (!existingRole) {
@@ -275,7 +275,7 @@ export class RoleService {
           },
         },
         data: {
-          delFlag: IS_DELETE, // 设置为逻辑删除
+          delFlag: DeleteEnum.DELETE, // 设置为逻辑删除
         },
       });
     });

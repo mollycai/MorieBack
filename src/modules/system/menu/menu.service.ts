@@ -7,13 +7,13 @@ import {
   MSG_DELETE,
   MSG_UPDATE,
 } from 'src/common/constants/code.constants';
-import { IS_DELETE, NOT_DELETE } from 'src/common/constants/user.constant';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { UtilService } from 'src/shared/services/utils.service';
 import { RoleService } from '../role/role.service';
 import { MENU_TYPE, ROUTER_TYPE, SELECTTREE_TYPE } from './menu.constants';
 import { CreateMenuDto, MenuParamsDto, UpdateMenuDto } from './menu.dto';
 import { convertFlatDataToTree } from './menu.utils';
+import { DeleteEnum, StatusEnum } from 'src/common/enum/data.enum';
 
 @Injectable()
 export class MenuService {
@@ -28,7 +28,7 @@ export class MenuService {
    */
   async findAll({ menuName, status }: MenuParamsDto) {
     const where = {
-      delFlag: NOT_DELETE,
+      delFlag: DeleteEnum.EXIST,
     };
     if (status) {
       where['status'] = status;
@@ -68,8 +68,8 @@ export class MenuService {
     // 菜单列表
     const menuList = await this.prisma.sys_menu.findMany({
       where: {
-        delFlag: NOT_DELETE,
-        status: 0,
+        delFlag: DeleteEnum.EXIST,
+        status: StatusEnum.NORMAL,
         menuId: {
           in: menuIds,
         },
@@ -89,7 +89,14 @@ export class MenuService {
    */
   async menuTreeSelect() {
     // 查询所有菜单
-    const menuList = await this.prisma.sys_menu.findMany();
+    const menuList = await this.prisma.sys_menu.findMany({
+			where: {
+				delFlag: DeleteEnum.EXIST,
+			},
+			orderBy: {
+				orderNum: 'asc',
+			},
+		});
     return this.utilService.responseMessage({
       data: convertFlatDataToTree(menuList, SELECTTREE_TYPE),
     });
@@ -116,7 +123,7 @@ export class MenuService {
     // 查询菜单列表
     const menuList = await this.prisma.sys_menu.findMany({
       where: {
-        delFlag: NOT_DELETE, // 未删除
+        delFlag: DeleteEnum.EXIST, // 未删除
       },
       orderBy: {
         orderNum: 'asc', // 按照排序字段升序
@@ -243,7 +250,7 @@ export class MenuService {
     const childMenus = await this.prisma.sys_menu.findMany({
       where: {
         parentId: menuId,
-        delFlag: NOT_DELETE, // 未删除的子菜单
+        delFlag: DeleteEnum.EXIST, // 未删除的子菜单
       },
     });
     if (childMenus.length > 0) {
@@ -260,7 +267,7 @@ export class MenuService {
         menuId: menuId,
       },
       data: {
-        delFlag: IS_DELETE, // 标记为已删除
+        delFlag: DeleteEnum.DELETE, // 标记为已删除
       },
     });
 
@@ -286,8 +293,8 @@ export class MenuService {
     // 查询权限列表
     const perms = await this.prisma.sys_menu.findMany({
       where: {
-        delFlag: NOT_DELETE,
-        status: 0,
+        delFlag: DeleteEnum.EXIST,
+        status: StatusEnum.NORMAL,
         menuId: {
           in: menuIds,
         },

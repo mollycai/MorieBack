@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEnum, IsInt, IsOptional, IsString, Length } from "class-validator";
 import { DateDTO } from "src/common/dto/params.dto";
-import { StatusEnum } from "src/common/enum";
+import { StatusEnum } from "src/common/enum/data.enum";
 
 export class MenuParamsDto {
   @ApiProperty({
@@ -61,13 +61,13 @@ export class CreateMenuDto extends DateDTO {
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsInt()
-  isFrame?: number;
+  @IsString()
+  isFrame?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsInt()
-  isCache?: number;
+  @IsString()
+  isCache?: string;
 
   @ApiProperty({ required: false })
   @IsString()
@@ -75,13 +75,13 @@ export class CreateMenuDto extends DateDTO {
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsInt()
-  visible?: number;
+  @IsString()
+  visible?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsInt()
-  status?: number;
+  @IsString()
+  status?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()

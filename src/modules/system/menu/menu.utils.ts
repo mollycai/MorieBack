@@ -1,13 +1,8 @@
 import { sys_menu } from '@prisma/client';
 import { isURL } from 'class-validator';
-import {
-	IS_CACHE,
-	IS_VISIBLE,
-	NOT_FRAME,
-	TYPE_BUTTON,
-} from 'src/common/constants/user.constant';
 import { MENU_TYPE, ROUTER_TYPE, SELECTTREE_TYPE } from './menu.constants';
 import { MenuItem, RouteItem, SelectTreeItem } from './menu.type';
+import { CharEnum, MenuEnum } from 'src/common/enum/data.enum';
 
 /**
  * 递归清理空的 children和其他数据
@@ -47,7 +42,7 @@ export const convertFlatDataToTree = (
     if (
       type === MENU_TYPE ||
       type === SELECTTREE_TYPE ||
-      (type === ROUTER_TYPE && node.menuType !== TYPE_BUTTON)
+      (type === ROUTER_TYPE && node.menuType !== MenuEnum.TYPE_BUTTON)
     ) {
       const currentNode = {
         ...(type === MENU_TYPE
@@ -63,7 +58,7 @@ export const convertFlatDataToTree = (
   // 遍历所有节点，构建树形结构
   flatData.forEach((node) => {
     // 过滤掉 BUTTON_TYPE 节点
-    if (type === ROUTER_TYPE && node.menuType === TYPE_BUTTON) {
+    if (type === ROUTER_TYPE && node.menuType === MenuEnum.TYPE_BUTTON) {
       return;
     }
     const currentNode = map[node.menuId];
@@ -109,9 +104,9 @@ const formatMenuNode = (menuNode: sys_menu): MenuItem => {
     rank: menuNode.orderNum,
     status: menuNode.status,
     createTime: menuNode.createTime,
-    isCache: menuNode.isCache === IS_CACHE,
+    isCache: menuNode.isCache === CharEnum.YES,
     isFrame: isInnerLink(menuNode),
-    isShow: menuNode.visible === IS_VISIBLE,
+    isShow: menuNode.visible === CharEnum.YES,
     permission: menuNode.perms,
   };
 };
@@ -122,7 +117,7 @@ const formatMenuNode = (menuNode: sys_menu): MenuItem => {
  * @return
  */
 const isInnerLink = (menuNode: sys_menu): boolean => {
-  return menuNode.isFrame === NOT_FRAME && isURL(menuNode.path);
+  return menuNode.isFrame === CharEnum.YES && isURL(menuNode.path);
 };
 
 /**
@@ -140,7 +135,7 @@ const formatRouteNode = (menuNode: sys_menu): RouteItem => {
     meta: {
       title: menuNode.menuName,
       icon: menuNode.icon,
-      isCache: menuNode.isCache === IS_CACHE,
+      isCache: menuNode.isCache === CharEnum.YES,
       isFrame: isInnerLink(menuNode),
       rank: menuNode.orderNum,
     },

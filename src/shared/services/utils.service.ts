@@ -11,7 +11,7 @@ import {
 	USER_PERMS_KEY,
 	USER_TOKEN_KEY,
 } from 'src/common/constants/redis.constans';
-import { MsgEnum } from 'src/common/enum';
+import { MsgEnum } from 'src/common/enum/code.enum';
 import { ApiException } from 'src/common/exceptions/api.exception';
 
 @Injectable()

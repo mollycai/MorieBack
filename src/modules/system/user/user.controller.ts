@@ -72,7 +72,7 @@ export class UserController {
     type: Array<number>,
     required: true,
   })
-  @Permission('system:user:delete')
+  @Permission('system:user:remove')
   remove(@Body() body: { userIds: number[] }) {
     return this.userService.remove(body.userIds);
   }

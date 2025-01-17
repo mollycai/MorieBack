@@ -9,7 +9,7 @@ import {
 	Length,
 } from 'class-validator';
 import { DateDTO, PaginatingDTO } from 'src/common/dto/params.dto';
-import { StatusEnum } from 'src/common/enum';
+import { StatusEnum } from 'src/common/enum/data.enum';
 
 export class ListRoleDto extends PaginatingDTO {
   @ApiProperty({

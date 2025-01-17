@@ -9,7 +9,6 @@ import {
 	MSG_CREATE,
 	MSG_UPDATE,
 } from 'src/common/constants/code.constants';
-import { IS_DELETE, NOT_DELETE } from 'src/common/constants/user.constant';
 import { ApiException } from 'src/common/exceptions/api.exception';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { prisma } from 'src/prisma';
@@ -22,6 +21,7 @@ import {
 	ListUserDto,
 	UpdateUserDto,
 } from './user.dto';
+import { DeleteEnum, StatusEnum } from 'src/common/enum/data.enum';
 
 @Injectable()
 export class UserService {
@@ -39,7 +39,7 @@ export class UserService {
     return await prisma.sys_user.findFirst({
       where: {
         userName: username,
-        status: '0',
+        status: StatusEnum.NORMAL,
       },
     });
   }
@@ -119,7 +119,7 @@ export class UserService {
       userId: {
         [relation]: userIds,
       },
-      delFlag: NOT_DELETE,
+      delFlag: DeleteEnum.EXIST,
     };
     if (userName) {
       where['userName'] = { contains: userName };
@@ -295,7 +295,7 @@ export class UserService {
     endTime,
   }: ListUserDto) {
     const where = {
-      delFlag: NOT_DELETE,
+      delFlag: DeleteEnum.EXIST,
     };
     if (userId) {
       where['userId'] = userId;
@@ -495,7 +495,7 @@ export class UserService {
           },
         },
         data: {
-          delFlag: IS_DELETE, // 暂时做成不删除，修改del_flag，但这或许会引发无用数据过的的问题，待讨论@TODO
+          delFlag: DeleteEnum.DELETE, // 暂时做成不删除，修改del_flag，但这或许会引发无用数据过的的问题，待讨论@TODO
         },
       });
     });

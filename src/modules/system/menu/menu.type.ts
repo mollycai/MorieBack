@@ -14,7 +14,7 @@ export type MenuItem = {
   rank?: number; // 菜单升序排序
   components?: string; // 组件
   createTime?: Date; // 创建时间
-  status?: number; // 状态
+  status?: string; // 状态
   isCache?: boolean; // 是否缓存
   isShow?: boolean; // 是否展示
   isFrame?: boolean; // 是否外链
